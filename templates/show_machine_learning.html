@@ -1,0 +1,68 @@
+{% extends 'base_index.html' %}
+
+{% block title %}机器学习模型{% endblock %}
+
+{% block content %}
+    <div class="container" style="margin-top: 2%">
+        <div class="row">
+            <button id="uploadButton" type="button" class="btn btn-lg btn btn-success btn-arrow-right"
+                    onclick='window.location.href="{% url 'upload' %}"'>数据上传
+            </button>
+            <button id="showDataButton" type="button" class="btn btn-lg btn btn-success btn-arrow-right"
+                    onclick='window.location.href="{% url 'qualitycontrol' dataname %}"'>数据质量检测
+            </button>
+            <button id="beginFSButton" type="button" class="btn btn-lg btn btn-success btn-arrow-right" disabled
+                    onclick='window.location.href="{% url 'domainknowledgeembedding' dataname %}"'>构效关系建模
+            </button>
+            <button id="beginMLButton" type="button" class="btn btn-lg btn btn-info btn-arrow-right"
+                    onclick='window.location.href="{% url 'machinelearning' dataname 'qualitycontrol' %}"'>性能预测
+            </button>
+        </div>
+
+        {% if from_where == 'featureselection' %}
+            <div class="row">
+                <table style="margin-top: 2%; margin-left: 2%; margin-bottom: 2%">
+                    <thead>
+                    <tr>
+                        <th>机器学习模型：</th>
+                        <th colspan="2"><h6>{{ ml_method }}</h6></th>
+                    </tr>
+                    <tr>
+                        <th>已选特征</th>
+                        <th>回归系数</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in fc %}
+                        <tr>
+                            <td>{{ i.0 }}</td>
+                            <td>{{ i.1 }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td><strong>截距系数：</strong></td>
+                        <td colspan="2"><h6>{{ intercept }}</h6></td>
+                    </tr>
+                    <tr>
+                        <td><strong>均方根误差RMSE：</strong></td>
+                        <td colspan="2"><h6>{{ rmse }}</h6></td>
+                    </tr>
+                    <tr>
+                        <td><strong>拟合优度R^2：</strong></td>
+                        <td colspan="2"><h6>{{ r2 }}</h6></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <a type="button" class="btn btn-info" href="{% url 'predict' dataname ml_method from_where %}">开始预测</a>
+            <a type="button" class="btn btn-default" href="{% url 'qualitycontrol' dataname %}">返回</a>
+        {% elif from_where == 'qualitycontrol' %}
+            <h3>机器学习模型：</h3>
+            <p>{{ ml_method }}</p>
+            <a type="button" class="btn btn-info" href="{% url 'predict' dataname ml_method from_where %}">开始预测</a>
+            <a type="button" class="btn btn-default" href="{% url 'qualitycontrol' dataname %}">返回</a>
+        {% endif %}
+    </div>
+{% endblock %}

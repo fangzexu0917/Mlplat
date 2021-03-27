@@ -1,0 +1,61 @@
+{% extends 'base_index.html' %}
+{% load static %}
+
+{% block title %}特征选择{% endblock %}
+
+{% block style %}
+    <style>
+        #loading {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            top: 25%;
+            left: 25%;
+        {#margin: -25px -150px;#} background-color: #FFFFFF;
+            border: 1px solid #CCCCCC;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="margin-top: 2%">
+        <div class="row">
+            <button id="uploadButton" type="button" class="btn btn-lg btn btn-success btn-arrow-right"
+                    onclick='window.location.href="{% url 'upload' %}"'>数据上传
+            </button>
+            <button id="showDataButton" type="button" class="btn btn-lg btn btn-success btn-arrow-right"
+                    onclick='window.location.href="{% url 'qualitycontrol' dataname %}"'>数据质量检测
+            </button>
+            <button id="beginFSButton" type="button" class="btn btn-lg btn btn-success btn-arrow-right" disabled
+                    onclick='window.location.href="{% url 'domainknowledgeembedding' dataname %}"'>构效关系建模
+            </button>
+            <button id="beginMLButton" type="button" class="btn btn-lg btn btn-info btn-arrow-right"
+                    onclick='window.location.href="{% url 'machinelearning' dataname 'qualitycontrol' %}"'>性能预测
+            </button>
+        </div>
+        <h3 style="margin-top: 2%">选择核特征</h3>
+
+        <form action="#" method="post" enctype="multipart/form-data">{% csrf_token %}
+            <div class="row">
+                {% for featurename in featurenames %}
+                    <div class="custom-checkbox col-4">
+                        <input class="custom-checkbox" type="checkbox" id="{{ featurename }}" name="checkbox_list"
+                               value="{{ featurename }}">
+                        <label for="{{ featurename }}">{{ featurename }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-info"
+                    onclick="document.getElementById('loading').style.display='';">确定
+            </button>
+            <a type="button" class="btn btn-default"
+               href="{% url 'qualitycontrol' dataname %}">返回
+            </a>
+        </form>
+        <div id="loading" style="display:none;">
+            <img src="{% static 'image/loading.gif' %}" width="400" height="400" alt="Processing">
+        </div>
+    </div>
+{% endblock %}

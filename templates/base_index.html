@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+{% load i18n %}
+{% load static %}
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="{% trans '面向锂电池材料的机器学习平台' %}">
+    <meta name="description" content="{% trans '面向锂电池材料的机器学习平台' %}">
+
+    <title>{% block title %}{% endblock %}</title>
+
+    <script type="text/javascript" src="{% static 'jquery-3.4.1/jquery-3.4.1.js' %}"></script>
+    <script src="{% static 'popper-1.14.3/esm/popper.js' %}"></script>
+    <script src="{% static 'popper-1.14.3/umd/popper.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'bootstrap-4.4.1-dist/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/material.css' %}">
+    <script type="text/javascript" src="{% static 'bootstrap-4.4.1-dist/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/ChemDoodleWeb.js' %}"></script>
+
+    <link rel="stylesheet"
+          href="{% static 'bootstrap-directional-button/dist/bootstrap-directional-buttons.css' %}">
+
+    {% block script %}{% endblock %}
+    {% block style %}{% endblock %}
+
+</head>
+<body>
+
+<div class="jumbotron bg-info jumbotron-fluid header" style="margin-bottom:0; padding:0 0">
+    <div class="row">
+        {#        <h1 class="col z-index:10"#}
+        {#            style="margin-bottom:0; padding:3.5rem 0.5rem;text-align:center;font-weight: bold;font-size:3rem;">#}
+        {#            {% trans "面向锂电池材料的机器学习平台" %}</h1>#}
+        <div class="col-8">
+            <div class="header-pic" style="top:0;">
+            </div>
+            <img src="{% static 'image/title_new.png' %}"
+                 style="padding-left: 4rem; padding-right: 4rem; padding-top: 2rem; height: 150px" alt="">
+
+            <p style="padding-left: 6rem; padding-right: 4rem; padding-top: 1rem;"><i>
+                Machine Learning for the Property Prediction and Novel
+                Materials Discovery of Solid Electrolyte Material to Improve the interpretability of machine
+                learning results or processes by Embedding Domain Knowledge.
+            </i></p>
+        </div>
+
+        <div id="carouselExampleControls" class="col-4 carousel slide" data-ride="carousel" style="padding-top: 1rem">
+            <div class="carousel-inner">
+                <div class="carousel-item active"
+                     style="background-image: url('{% static 'image/llzomepsmall.png' %}')">
+                    <img src="{% static 'image/llzomepsmall.png' %}" class="d-block w-30" alt="" style="height: 210px">
+                </div>
+                <div class="carousel-item" style="background-image: url('{% static 'image/llzosmall.png' %}')">
+                    <img src="{% static 'image/llzosmall.png' %}" alt="" style="height: 210px">
+                </div>
+                <div class="carousel-item" style="background-image: url('{% static 'image/nzpmepsmall.png' %}')">
+                    <img src="{% static 'image/nzpmepsmall.png' %}" class="d-block w-30" alt="" style="height: 210px">
+                </div>
+                <div class="carousel-item" style="background-image: url('{% static 'image/nzpsmall.png' %}')">
+                    <img src="{% static 'image/nzpsmall.png' %}" class="d-block w-30" alt="" style="height: 210px">
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    window.onscroll = function () {
+        var backtop = document.documentElement.scrollTop;
+        if (backtop >= 100) {
+            $('a.back-to-top').show();
+        } else {
+            $('a.back-to-top').hide();
+        }
+    }
+</script>
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark" role="navigation">
+    <a class="navbar-brand justify-content-start" href="https://matgen.nscc-gz.cn/index.html">
+        <svg class="bi bi-house" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
+             xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+                  d="M2 13.5V7h1v6.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7h1v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5zm11-11V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"
+                  clip-rule="evenodd"/>
+            <path fill-rule="evenodd"
+                  d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"
+                  clip-rule="evenodd"/>
+        </svg>
+        {% trans "Matgen" %}
+    </a>
+
+    <a class="navbar-brand justify-content-end" href="{% url 'show' %}">
+        {% trans "查看数据" %}
+    </a>
+    <a class="navbar-brand justify-content-end" href="{% url 'upload' %}">
+        {% trans "机器学习" %}
+    </a>
+    <div class="collapse navbar-collapse justify-content-end">
+        <a class="navbar-brand justify-content-end" href="#" disabled="disabled">
+            {% trans "关于" %}
+        </a>
+    </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+<div class="row">
+    <p class="text-black" style="font-size:14px;margin:auto;text-align:center">
+        上海大学固态电解质机器学习平台, 联系邮箱：<a href="mailto:webmaster@bmaterials.cn">webmaster@bmaterials.cn</a>
+    </p>
+</div>
+
+<div class="bottom_" style="">
+    <img src="{% static 'image/shusmall.png' %}" class="bottom_logo" alt="" style="padding-right: 2%">
+    <img src="{% static 'image/group_logo.png' %}" class="bottom_logo" alt="">
+</div>
+<a style="position: fixed;bottom: 3em;right: 3em;text-decoration: none;color: #EEEEEE;background-color: rgba(0, 0, 0, 0.3);font-size: 12px;padding: 1em;border-radius: 3px;border: 1px solid #CCCCCC;display: none;"
+   href="#" class="back-to-top">{% trans "回到顶端" %}</a>
+
+</body>
+</html>
