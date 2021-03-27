@@ -162,14 +162,14 @@
                                                 m = objData.length;
                                                 let discDiv = $('#descDiv');
                                                 discDiv.empty();
-                                                let firstElement = true;
+                                                //let firstElement = true;
                                                 for (let colname in objData[0]) {
                                                     if (objData[0].hasOwnProperty(colname)) {
-                                                        if (firstElement) {
+                                                        /*if (firstElement) {
                                                             firstElement = false;
                                                             continue;
-                                                        }
-                                                        colnum++;
+                                                        }*/
+                                                        colnum += 1;
                                                         discDiv.append(
                                                             "<div class='row'>" +
                                                             "<div class='col-md-1'></div>" +
@@ -194,10 +194,11 @@
                                                             "placeholder='描述信息' >" +
                                                             "</div>" +
                                                             "</div>")
+
                                                     }
                                                 }
-                                                document.getElementById('data_size_n').value = colnum - 1;
-                                                n = colnum - 1;
+                                                document.getElementById('data_size_n').value = colnum;
+                                                n = colnum;
                                             }
                                         }
                                     </script>
