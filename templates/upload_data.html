@@ -62,18 +62,18 @@
         </div>
 
         <form method="post" enctype="multipart/form-data">{% csrf_token %}
-            <div class="accordion" id="accordionExample">
+            <div class="accordion" id="accordionExampleOne">
                 <div class="card">
                     <div class="card-header" id="headingOne">
                         <h3 class="mb-0">
                             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
-                                    aria-expanded="true" aria-controls="collapseOne">
+                                    aria-expanded="false" aria-controls="collapseOne">
                                 数据基本信息
                             </button>
                         </h3>
                     </div>
-                    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                         data-parent="#accordionExample">
+                    <div id="collapseOne" class="collapse" aria-labelledby="headingOne"
+                         data-parent="#accordionExampleOne">
                         <div class="card-body">
 
                             <div class="form-group">
@@ -285,7 +285,8 @@
                             </button>
                         </h3>
                     </div>
-                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
+                         data-parent="#accordionExampleOne">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-1"></div>
@@ -332,14 +333,14 @@
                 <div class="card">
                     <div class="card-header" id="headingThree">
                         <h3 class="mb-0">
-                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
-                                    data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            <button class="btn btn-link" type="button" data-toggle="collapse"
+                                    data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
                                 数据用户信息
                             </button>
                         </h3>
                     </div>
-                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
-                         data-parent="#accordionExample">
+                    <div id="collapseThree" class="collapse show" aria-labelledby="headingThree"
+                         data-parent="#accordionExampleOne">
                         <div class="card-body">
                             <div class="form-group">
                                 <div class="row">
@@ -433,7 +434,7 @@
                         </h3>
                     </div>
                     <div id="collapseFour" class="collapse" aria-labelledby="headingFour"
-                         data-parent="#accordionExample">
+                         data-parent="#accordionExampleOne">
                         <div class="card-body">
                             <div class="form-group">
                                 <div class="row">
@@ -525,6 +526,39 @@
                                     </script>
                                 </div>
 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" id="headingFive">
+                        <h3 class="mb-0">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                    data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                数据基本信息
+                            </button>
+                        </h3>
+                    </div>
+                    <div id="collapseFive" class="collapse" aria-labelledby="headingFive"
+                         data-parent="#accordionExampleOne">
+                        <div class="formControls">
+                            <ul class="nav nav-pills nav-justified">
+                                <li class="nav-item">
+                                    <a class="nav-link  active" data-toggle="pill" href="#home">数据集合基本信息</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="pill" href="#menu1">样本基本信息</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="pill" href="#menu2">描述符基本信息</a>
+                                </li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content ">
+                                <div class="tab-pane active container" id="home">数据集合基本信息</div>
+                                <div class="tab-pane container" id="menu1">样本基本信息</div>
+                                <div class="tab-pane container" id="menu2">描述符基本信息</div>
                             </div>
                         </div>
                     </div>
