@@ -449,7 +449,6 @@
                                             <div class="col-sm-2"></div>
                                             <label class="control-label"
                                                    style="text-align: center; padding-left: 10px">
-                                                <a href="#">描述文件示例</a>
                                                 <a href="#">数据文件示例</a>
                                             </label>
                                         </div>
@@ -529,6 +528,26 @@
                                         <div id="descDiv"
                                              style="height: 600px"></div>
                                     </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-1"></div>
+                                            <label class="col-md-2  control-label"
+                                                   style="text-align: right; display: inline-block; height:35px; line-height: 35px">基本信息批量上传</label>
+                                            <div class="formControls col-md-7">
+                                                <input type="file" class="file validate[required]"
+                                                       id="input-excel2"
+                                                       name="input-excel2"
+                                                       onchange=""
+                                                       placeholder="选上传文件">
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <label class="control-label"
+                                                       style="text-align: center; padding: 10px">
+                                                    <a href="#">文件示例</a>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="row ">
                                         <div class="formControls col-sm-offset-2 col-sm-2"></div>
                                         <div class="formControls  col-sm-2" style="padding-left: 15px">
@@ -561,6 +580,17 @@
             showUpload: false,
         })
         $('#input-excel-desc').fileinput({
+            showPreview: false,
+            showRemove: false,
+            browseOnZoneClick: true,
+            allowedFileExtensions: ['xls', 'xlsx'],
+            language: 'zh',
+            type: 'post',
+            theme: 'explorer',
+            browseClass: 'btn btn-info',
+            showUpload: false,
+        })
+        $('#input-excel2').fileinput({
             showPreview: false,
             showRemove: false,
             browseOnZoneClick: true,
