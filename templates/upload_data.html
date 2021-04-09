@@ -5,10 +5,15 @@
 
 {% block script %}
     <link rel="stylesheet" href="{% static 'kartik-v-bootstrap-fileinput/css/fileinput.css' %}">
+    <link rel="stylesheet" href="{% static 'jQuery-Validation-Engine/css/validationEngine.jquery.css' %}">
     <script type="text/javascript" src="{% static 'kartik-v-bootstrap-fileinput/js/fileinput.js' %}"></script>
     <script type="text/javascript" src="{% static 'kartik-v-bootstrap-fileinput/js/locales/zh.js' %}"></script>
     <script type="text/javascript"
             src="{% static 'tableExport.jquery.plugin/libs/js-xlsx/xlsx.full.min.js' %}"></script>
+    <script src="{% static 'jQuery-Validation-Engine/js/jquery.validationEngine-en.js' %}" type="text/javascript"
+            charset="utf-8"></script>
+    <script src="{% static 'jQuery-Validation-Engine/js/jquery.validationEngine.js' %}" type="text/javascript"
+            charset="utf-8"></script>
 {% endblock %}
 
 {% block content %}
@@ -63,273 +68,8 @@
 
         <form method="post" enctype="multipart/form-data">{% csrf_token %}
             <div class="accordion" id="accordionExampleOne">
-                <div class="card">
-                    <div class="card-header" id="headingOne">
-                        <h3 class="mb-0">
-                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
-                                    aria-expanded="false" aria-controls="collapseOne">
-                                数据基本信息
-                            </button>
-                        </h3>
-                    </div>
-                    <div id="collapseOne" class="collapse" aria-labelledby="headingOne"
-                         data-parent="#accordionExampleOne">
-                        <div class="card-body">
-
-                            <div class="form-group">
-                                <div class="row">
-                                    <label for="domainType" class="col-sm-2  control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据领域类型</label>
-                                    <div class="form-group col-md-3">
-                                        <span class="select-box radius mt-20" style="margin: 0">
-                                            <select id="domainType" class="form-control" size="1" name="domainType">
-                                                <option id="li-arg" value="硫银锗矿" selected>硫银锗矿</option>
-                                                <option id="nascion" value="NASCION">NASCION</option>
-                                                <option id="garnet" value="石榴石">石榴石</option>
-                                                <option id="domainOther" value="其他">其他</option>
-                                            </select>
-                                        </span>
-                                    </div>
-                                    <label for="areaType" class="col-sm-2 control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">方向类型</label>
-                                    <div class="form-group col-md-3">
-                                        <span class="select-box radius mt-20" style="margin: 0">
-                                            <select id="areaType" class="form-control" size="1" name="areaType">
-                                                <option id="conductivity" value="电导率" selected>电导率</option>
-                                                <option id="activation" value="激活能">激活能</option>
-                                                <option id="areaOther" value="其他">其他</option>
-                                            </select>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <label for="data_keywords" class="col-sm-2  control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">关键词</label>
-                                    <div class="form-group col-md-8">
-                                        <input value="NASCION" type="text"
-                                               class="form-control validate[required] validate[maxSize[255]] 	"
-                                               placeholder="关键词(多条用';'分隔)"
-                                               id="data_keywords" name="data_keywords">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <label for="data_abstract" class="col-sm-2 control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据摘要</label>
-                                    <div class="form-group col-md-8">
-                                        <input type="text" id="data_abstract" name="data_abstract"
-                                               class="form-control validate[maxSize[255]]" placeholder="数据摘要">
-                                    </div>
-                                </div>
 
 
-                                <div class="row">
-                                    <label class="col-sm-2  control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">描述文件上传</label>
-                                    <div class="formControls col-md-8">
-                                        <input type="file" class="file validate[required]" id="input-excel-desc"
-                                               name="input-excel-desc"
-                                               placeholder="选择上传文件">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <label class="col-sm-2  control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据文件上传</label>
-                                    <div class="formControls col-md-8">
-                                        <input type="file" class="file validate[required]" id="input-excel"
-                                               name="input-excel"
-                                               onchange="importExcel(document.getElementById('input-excel'))"
-                                               placeholder="选择上传文件">
-                                    </div>
-                                    <script type="text/javascript">
-                                        let wb;
-                                        let m, n;
-
-                                        function importExcel(obj) {
-                                            console.log('in importexcel');
-                                            console.log(obj.files);
-                                            if (!obj.files) {
-                                                return;
-                                            }
-                                            let f = obj.files[0];
-                                            let r = new FileReader();
-                                            r.readAsBinaryString(f);
-                                            r.onload = function (e) {
-                                                let data = e.target.result;
-                                                wb = XLSX.read(data, {type: 'binary'});
-                                                let objData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-                                                let colnum = 0;
-                                                document.getElementById('data_size_m').value = objData.length;
-                                                m = objData.length;
-                                                let discDiv = $('#descDiv');
-                                                discDiv.empty();
-                                                //let firstElement = true;
-                                                for (let colname in objData[0]) {
-                                                    if (objData[0].hasOwnProperty(colname)) {
-                                                        /*if (firstElement) {
-                                                            firstElement = false;
-                                                            continue;
-                                                        }*/
-                                                        colnum += 1;
-                                                        discDiv.append(
-                                                            "<div class='row'>" +
-                                                            "<div class='col-md-1'></div>" +
-                                                            "<div class='form-group col-md-2'>" +
-                                                            "<input type='text' " +
-                                                            "class='form-control validate[required] validate[maxSize[255]]' " +
-                                                            "value='" + colname + "'>" +
-                                                            "</div>" +
-                                                            "<div class='form-group col-md-2'>" +
-                                                            "<input type='text' " +
-                                                            "class='form-control validate[required] validate[maxSize[255]]' " +
-                                                            "value='" + colname + "'>" +
-                                                            "</div>" +
-                                                            "<div class='form-group col-md-2'>" +
-                                                            "<input type='text' id='dimRange' name='dimRange' " +
-                                                            "class='form-control validate[required] validate[maxSize[255]]' " +
-                                                            "placeholder='例：2,3' >" +
-                                                            "</div>" +
-                                                            "<div class='form-group col-md-4'>" +
-                                                            "<input type='text' id='dimDesc' name='dimDesc' " +
-                                                            "class='form-control validate[required] validate[maxSize[255]]' " +
-                                                            "placeholder='描述信息' >" +
-                                                            "</div>" +
-                                                            "</div>")
-
-                                                    }
-                                                }
-                                                document.getElementById('data_size_n').value = colnum;
-                                                n = colnum;
-                                            }
-                                        }
-                                    </script>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-2"></div>
-                                    <label class="control-label" style="text-align: center; padding-left: 10px">
-                                        支持的文件扩展名：.xls，.xlsx（Excel表格文件）
-                                    </label>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-2"></div>
-                                    <label class="control-label" style="text-align: center; padding-left: 10px">
-                                        文件格式说明：表格第一行应为特征名，最后一列为目标属性，务必确保所有属性值不为空
-                                    </label>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-2"></div>
-                                    <label class="control-label" style="text-align: center; padding-left: 10px">
-                                        描述文件为数据文件样本的描述信息
-                                    </label>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-2"></div>
-                                    <label class="control-label" style="text-align: center; padding-left: 10px">
-                                        <a href="#">描述文件示例</a>
-                                        <a href="#">数据文件示例</a>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <label for="data_size_m" class="col-sm-2 control-label"
-                                       style="text-align: right; display: inline-block; height:35px; line-height: 35px">样本数</label>
-                                <div class="form-group col-md-3">
-                                    <input type="text" value="51"
-                                           class="form-control validate[required] validate[custom[number]] validate[maxSize[10]]"
-                                           placeholder="m" id="data_size_m" name="data_size_m">
-                                </div>
-                                <label for="data_size_n" class="col-sm-2 control-label"
-                                       style="text-align: right; display: inline-block; height:35px; line-height: 35px">维度</label>
-                                <div class="form-group col-md-3">
-                                    <input value="33" type="text"
-                                           class="form-control validate[required] validate[custom[number]] validate[maxSize[10]]"
-                                           placeholder="n" id="data_size_n" name="data_size_n">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="formControls col-sm-offset-2 col-sm-2"></div>
-                                <div class="formControls  col-sm-2" style="padding-left: 15px">
-                                    <button type="button" class="btn btn-success" onclick="next1()"
-                                            style="height: 45px;text-align: center;padding-top: 10px">
-                                        下一步 >
-                                    </button>
-                                    <script type="text/javascript">
-                                        function next1() {
-
-                                            if (document.getElementById('data_size_m').value !== String(m) || document.getElementById('data_size_n').value !== String(n)) {
-                                                let result = confirm('样本数或维度与上述文件不符，确定继续吗？');
-                                                if (result === true) {
-                                                    //importExcel(document.getElementById('input-excel'));
-                                                    document.getElementById('collapseOne').className = 'collapse';
-                                                    document.getElementById('collapseTwo').className = 'collapse show';
-                                                }
-                                            } else {
-                                                //importExcel(document.getElementById('input-excel'));
-                                                document.getElementById('collapseOne').className = 'collapse';
-                                                document.getElementById('collapseTwo').className = 'collapse show';
-                                            }
-
-
-                                        }
-                                    </script>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header" id="headingTwo">
-                        <h3 class="mb-0">
-                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
-                                    data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                描述因子信息
-                            </button>
-                        </h3>
-                    </div>
-                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
-                         data-parent="#accordionExampleOne">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-1"></div>
-                                <label class="col-sm-2 control-label"
-                                       style="display: inline-block; height:35px; line-height: 35px">名称</label>
-                                <label class="col-sm-2 control-label"
-                                       style="display: inline-block; height:35px; line-height: 35px">符号</label>
-                                <label class="col-sm-2 control-label"
-                                       style="display: inline-block; height:35px; line-height: 35px">值域</label>
-                                <label class="col-sm-4 control-label"
-                                       style="display: inline-block; height:35px; line-height: 35px">描述信息</label>
-                                {# TODO: 值域 #}
-                            </div>
-                            <div id="descDiv" style="height: 600px;overflow-y: scroll;overflow-x: hidden"></div>
-                            <div class="row ">
-                                <div class="formControls col-sm-offset-2 col-sm-2"></div>
-                                <div class="formControls col-sm-offset-2 col-sm-2" style="padding-left: 15px">
-                                    <button type="button" class="btn btn-success " onclick="prev2()"
-                                            style="height: 45px;text-align: center;padding-top: 10px">
-                                        < 上一步
-                                    </button>
-                                </div>
-                                <div class="formControls  col-sm-2" style="padding-left: 15px">
-                                    <button type="button" class="btn btn-success " onclick="next2()"
-                                            style="height: 45px;text-align: center;padding-top: 10px">
-                                        下一步 >
-                                    </button>
-                                </div>
-                                <script type="text/javascript">
-                                    function prev2() {
-                                        document.getElementById('collapseTwo').className = 'collapse';
-                                        document.getElementById('collapseOne').className = 'collapse show';
-                                    }
-
-                                    function next2() {
-                                        document.getElementById('collapseTwo').className = 'collapse';
-                                        document.getElementById('collapseThree').className = 'collapse show';
-                                    }
-                                </script>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="card">
                     <div class="card-header" id="headingThree">
                         <h3 class="mb-0">
@@ -396,12 +136,7 @@
                                 </div>
                                 <div class="row ">
                                     <div class="formControls col-sm-offset-2 col-sm-2"></div>
-                                    <div class="formControls col-sm-offset-2 col-sm-2" style="padding-left: 15px">
-                                        <button type="button" class="btn btn-success " onclick="prev3()"
-                                                style="height: 45px;text-align: center;padding-top: 10px">
-                                            < 上一步
-                                        </button>
-                                    </div>
+
                                     <div class="formControls  col-sm-2" style="padding-left: 15px">
                                         <button type="button" class="btn btn-success " onclick="next3()"
                                                 style="height: 45px;text-align: center;padding-top: 10px">
@@ -409,11 +144,6 @@
                                         </button>
                                     </div>
                                     <script type="text/javascript">
-                                        function prev3() {
-                                            document.getElementById('collapseThree').className = 'collapse';
-                                            document.getElementById('collapseTwo').className = 'collapse show';
-                                        }
-
                                         function next3() {
                                             document.getElementById('collapseThree').className = 'collapse';
                                             document.getElementById('collapseFour').className = 'collapse show';
@@ -513,15 +243,20 @@
                                         </button>
                                     </div>
                                     <div class="formControls  col-sm-2" style="padding-left: 15px">
-                                        <button type="submit" class="btn btn-success "
+                                        <button type="button" class="btn btn-success " onclick="next4()"
                                                 style="height: 45px;text-align: center;padding-top: 10px">
-                                            提交
+                                            下一步 >
                                         </button>
                                     </div>
                                     <script type="text/javascript">
                                         function prev4() {
                                             document.getElementById('collapseFour').className = 'collapse';
                                             document.getElementById('collapseThree').className = 'collapse show';
+                                        }
+
+                                        function next4() {
+                                            document.getElementById('collapseFour').className = 'collapse';
+                                            document.getElementById('collapseFive').className = 'collapse show';
                                         }
                                     </script>
                                 </div>
@@ -544,21 +279,247 @@
                         <div class="formControls">
                             <ul class="nav nav-pills nav-justified">
                                 <li class="nav-item">
-                                    <a class="nav-link  active" data-toggle="pill" href="#home">数据集合基本信息</a>
+                                    <a class="nav-link  active" data-toggle="pill" href="#contentOne" id="titleOne">数据集合基本信息</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="pill" href="#menu1">样本基本信息</a>
+                                    <a class="nav-link" data-toggle="pill" href="#contentTwo" id="titleTwo">样本基本信息</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="pill" href="#menu2">描述符基本信息</a>
+                                    <a class="nav-link" data-toggle="pill" href="#contentThree"
+                                       id="titleThree">描述符基本信息</a>
                                 </li>
                             </ul>
 
                             <!-- Tab panes -->
-                            <div class="tab-content ">
-                                <div class="tab-pane active container" id="home">数据集合基本信息</div>
-                                <div class="tab-pane container" id="menu1">样本基本信息</div>
-                                <div class="tab-pane container" id="menu2">描述符基本信息</div>
+                            <div class="tab-content pb-3 pt-3">
+                                <div class="tab-pane container active" id="contentOne">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <label for="domainType" class="col-sm-2  control-label"
+                                                   style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据领域类型</label>
+                                            <div class="form-group col-md-3">
+                <span class="select-box radius mt-20" style="margin: 0">
+                    <select id="domainType" class="form-control" size="1" name="domainType">
+                        <option id="li-arg" value="硫银锗矿" selected>硫银锗矿</option>
+                        <option id="nascion" value="NASCION">NASCION</option>
+                        <option id="garnet" value="石榴石">石榴石</option>
+                        <option id="domainOther" value="其他">其他</option>
+                    </select>
+                </span>
+                                            </div>
+                                            <label for="areaType" class="col-sm-2 control-label"
+                                                   style="text-align: right; display: inline-block; height:35px; line-height: 35px">方向类型</label>
+                                            <div class="form-group col-md-3">
+                <span class="select-box radius mt-20" style="margin: 0">
+                    <select id="areaType" class="form-control" size="1" name="areaType">
+                        <option id="conductivity" value="电导率" selected>电导率</option>
+                        <option id="activation" value="激活能">激活能</option>
+                        <option id="areaOther" value="其他">其他</option>
+                    </select>
+                </span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label for="data_keywords" class="col-sm-2  control-label"
+                                                   style="text-align: right; display: inline-block; height:35px; line-height: 35px">关键词</label>
+                                            <div class="form-group col-md-8">
+                                                <input value="NASCION" type="text"
+                                                       class="form-control validate[required] validate[maxSize[255]] 	"
+                                                       placeholder="关键词(多条用';'分隔)"
+                                                       id="data_keywords" name="data_keywords">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label for="data_abstract" class="col-sm-2 control-label"
+                                                   style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据摘要</label>
+                                            <div class="form-group col-md-8">
+                                                <input type="text" id="data_abstract" name="data_abstract"
+                                                       class="form-control validate[maxSize[255]]"
+                                                       placeholder="数据摘要">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label class="col-sm-2  control-label"
+                                                   style="text-align: right; display: inline-block; height:35px; line-height: 35px">描述文件上传</label>
+                                            <div class="formControls col-md-8">
+                                                <input type="file" class="file validate[required]"
+                                                       id="input-excel-desc"
+                                                       name="input-excel-desc"
+                                                       placeholder="选择上传文件">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label class="col-sm-2  control-label"
+                                                   style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据文件上传</label>
+                                            <label style="text-align: left; display: inline-block; height:17px; line-height: 17px;width: 1px">*</label>
+                                            <div class="formControls col-md-8">
+                                                <input type="file" class="file validate[required]"
+                                                       id="input-excel"
+                                                       name="input-excel"
+                                                       onchange="importExcel(document.getElementById('input-excel'))"
+                                                       placeholder="选择上传文件">
+                                            </div>
+                                            <script type="text/javascript">
+                                                let wb;
+                                                let m = 0, n = 0;
+
+                                                function importExcel(obj) {
+                                                    console.log('in importexcel');
+                                                    console.log(obj.files);
+                                                    if (!obj.files) {
+                                                        return;
+                                                    }
+                                                    let f = obj.files[0];
+                                                    let r = new FileReader();
+                                                    r.readAsBinaryString(f);
+                                                    r.onload = function (e) {
+                                                        let data = e.target.result;
+                                                        wb = XLSX.read(data, {type: 'binary'});
+                                                        let objData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                                                        let colnum = 0;
+                                                        document.getElementById('data_size_m').value = objData.length;
+                                                        m = objData.length;
+                                                        let discDiv = $('#descDiv');
+                                                        discDiv.empty();
+                                                        for (let colname in objData[0]) {
+                                                            if (objData[0].hasOwnProperty(colname)) {
+                                                                colnum += 1;
+                                                                discDiv.append(
+                                                                    "<div class='row'>" +
+                                                                    "<div class='col-md-1'></div>" +
+                                                                    "<div class='form-group col-md-2'>" +
+                                                                    "<input type='text' " +
+                                                                    "class='form-control validate[required] validate[maxSize[255]]' " +
+                                                                    "value='" + colname + "'>" +
+                                                                    "</div>" +
+                                                                    "<div class='form-group col-md-2'>" +
+                                                                    "<input type='text' " +
+                                                                    "class='form-control validate[required] validate[maxSize[255]]' " +
+                                                                    "value='" + colname + "'>" +
+                                                                    "</div>" +
+                                                                    "<div class='form-group col-md-2'>" +
+                                                                    "<input type='text' id='dimRange' name='dimRange' " +
+                                                                    "class='form-control validate[required] validate[maxSize[255]]' " +
+                                                                    "placeholder='例：2,3' >" +
+                                                                    "</div>" +
+                                                                    "<div class='form-group col-md-4'>" +
+                                                                    "<input type='text' id='dimDesc' name='dimDesc' " +
+                                                                    "class='form-control validate[required] validate[maxSize[255]]' " +
+                                                                    "placeholder='描述信息' >" +
+                                                                    "</div>" +
+                                                                    "</div>")
+                                                            }
+                                                        }
+                                                        document.getElementById('data_size_n').value = colnum;
+                                                        n = colnum;
+                                                    }
+                                                }
+                                            </script>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2"></div>
+                                            <label class="control-label"
+                                                   style="text-align: center; padding-left: 10px">
+                                                *支持的文件扩展名：.xls，.xlsx（Excel表格文件）
+                                            </label>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2"></div>
+                                            <label class="control-label"
+                                                   style="text-align: center; padding-left: 10px">
+                                                *文件格式说明：表格第一行应为特征名，最后一列为目标属性，务必确保所有属性值不为空
+                                            </label>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2"></div>
+                                            <label class="control-label"
+                                                   style="text-align: center; padding-left: 10px">
+                                                *描述文件为数据文件样本的描述信息
+                                            </label>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2"></div>
+                                            <label class="control-label"
+                                                   style="text-align: center; padding-left: 10px">
+                                                <a href="#">描述文件示例</a>
+                                                <a href="#">数据文件示例</a>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <label for="data_size_m" class="col-sm-2 control-label"
+                                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">样本数</label>
+                                        <div class="form-group col-md-3">
+                                            <input type="text"
+                                                   class="form-control validate[required] validate[custom[number]] validate[maxSize[10]]"
+                                                   placeholder="*" id="data_size_m" name="data_size_m">
+                                        </div>
+                                        <label for="data_size_n" class="col-sm-2 control-label"
+                                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">维度</label>
+                                        <div class="form-group col-md-3">
+                                            <input type="text"
+                                                   class="form-control validate[required] validate[custom[number]] validate[maxSize[10]]"
+                                                   placeholder="*" id="data_size_n" name="data_size_n">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="formControls col-sm-offset-2 col-sm-2"></div>
+                                        <div class="formControls  col-sm-2" style="padding-left: 15px">
+                                            <button type="button" class="btn btn-success" onclick="next1()"
+                                                    style="height: 45px;text-align: center;padding-top: 10px">
+                                                下一步 >
+                                            </button>
+                                            <script type="text/javascript">
+                                                function next1() {
+                                                    if (m === 0 && n === 0) {
+                                                        alert("未上传文件");
+                                                    } else {
+                                                        if (document.getElementById('data_size_m').value !== String(m) || document.getElementById('data_size_n').value !== String(n)) {
+                                                            let result = confirm('样本数或维度与上述文件不符，确定继续吗？');
+                                                            if (result === true) {
+                                                                document.getElementById('titleOne').className = 'nav-link';
+                                                                document.getElementById('titleTwo').className = 'nav-link  active';
+                                                                document.getElementById('contentOne').className = 'tab-pane container';
+                                                                document.getElementById('contentTwo').className = 'tab-pane container active';
+                                                            }
+                                                        } else {
+                                                            document.getElementById('titleOne').className = 'nav-link';
+                                                            document.getElementById('titleTwo').className = 'nav-link  active';
+                                                            document.getElementById('contentOne').className = 'tab-pane container';
+                                                            document.getElementById('contentTwo').className = 'tab-pane container active';
+                                                        }
+                                                    }
+                                                }
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane container" id="contentTwo">样本基本信息</div>
+                                <div class="tab-pane container" id="contentThree">
+                                    <div class="row">
+                                        <div class="col-md-1"></div>
+                                        <label class="col-sm-2 control-label"
+                                               style="display: inline-block; height:35px; line-height: 35px">名称</label>
+                                        <label class="col-sm-2 control-label"
+                                               style="display: inline-block; height:35px; line-height: 35px">符号</label>
+                                        <label class="col-sm-2 control-label"
+                                               style="display: inline-block; height:35px; line-height: 35px">值域</label>
+                                        <label class="col-sm-4 control-label"
+                                               style="display: inline-block; height:35px; line-height: 35px">描述信息</label>
+                                        {# TODO: 值域 #}
+                                    </div>
+                                    <div id="descDiv"
+                                         style="height: 600px;overflow-y: scroll;overflow-x: hidden"></div>
+                                    <div class="row ">
+                                        <div class="formControls col-sm-offset-2 col-sm-2"></div>
+                                        <div class="formControls  col-sm-2" style="padding-left: 15px">
+                                            <button type="submit" class="btn btn-success "
+                                                    style="height: 45px;text-align: center;padding-top: 10px">
+                                                下一步 >
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
