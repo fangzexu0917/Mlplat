@@ -1,269 +1,104 @@
-	<div class="card">
-                    <div class="card-header" id="headingOne">
-                        <h3 class="mb-0">
-                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
-                                    aria-expanded="false" aria-controls="collapseOne">
-                                数据基本信息
-                            </button>
-                        </h3>
-                    </div>
-                    <div id="collapseOne" class="collapse" aria-labelledby="headingOne"
-                         data-parent="#accordionExampleOne">
-                        <div class="card-body">
-
-                            <div class="form-group">
-                                <div class="row">
-                                    <label for="domainType" class="col-sm-2  control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据领域类型</label>
-                                    <div class="form-group col-md-3">
-                                        <span class="select-box radius mt-20" style="margin: 0">
-                                            <select id="domainType" class="form-control" size="1" name="domainType">
-                                                <option id="li-arg" value="硫银锗矿" selected>硫银锗矿</option>
-                                                <option id="nascion" value="NASCION">NASCION</option>
-                                                <option id="garnet" value="石榴石">石榴石</option>
-                                                <option id="domainOther" value="其他">其他</option>
-                                            </select>
-                                        </span>
-                                    </div>
-                                    <label for="areaType" class="col-sm-2 control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">方向类型</label>
-                                    <div class="form-group col-md-3">
-                                        <span class="select-box radius mt-20" style="margin: 0">
-                                            <select id="areaType" class="form-control" size="1" name="areaType">
-                                                <option id="conductivity" value="电导率" selected>电导率</option>
-                                                <option id="activation" value="激活能">激活能</option>
-                                                <option id="areaOther" value="其他">其他</option>
-                                            </select>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <label for="data_keywords" class="col-sm-2  control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">关键词</label>
-                                    <div class="form-group col-md-8">
-                                        <input value="NASCION" type="text"
-                                               class="form-control validate[required] validate[maxSize[255]] 	"
-                                               placeholder="关键词(多条用';'分隔)"
-                                               id="data_keywords" name="data_keywords">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <label for="data_abstract" class="col-sm-2 control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据摘要</label>
-                                    <div class="form-group col-md-8">
-                                        <input type="text" id="data_abstract" name="data_abstract"
-                                               class="form-control validate[maxSize[255]]" placeholder="数据摘要">
-                                    </div>
-                                </div>
-
-
-                                <div class="row">
-                                    <label class="col-sm-2  control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">描述文件上传</label>
-                                    <div class="formControls col-md-8">
-                                        <input type="file" class="file validate[required]" id="input-excel-desc"
-                                               name="input-excel-desc"
-                                               placeholder="选择上传文件">
-
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <label class="col-sm-2  control-label"
-                                           style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据文件上传</label>
-                                    <div class="formControls col-md-8">
-                                        <input type="file" class="file validate[required]" id="input-excel"
-                                               name="input-excel"
-                                               onchange="importExcel(document.getElementById('input-excel'))"
-                                               placeholder="选择上传文件">
-                                    </div>
-                                    <script type="text/javascript">
-                                        let wb;
-                                        let m, n;
-
-                                        function importExcel(obj) {
-                                            console.log('in importexcel');
-                                            console.log(obj.files);
-                                            if (!obj.files) {
-                                                return;
-                                            }
-                                            let f = obj.files[0];
-                                            let r = new FileReader();
-                                            r.readAsBinaryString(f);
-                                            r.onload = function (e) {
-                                                let data = e.target.result;
-                                                wb = XLSX.read(data, {type: 'binary'});
-                                                let objData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-                                                let colnum = 0;
-                                                document.getElementById('data_size_m').value = objData.length;
-                                                m = objData.length;
-                                                let discDiv = $('#descDiv');
-                                                discDiv.empty();
-                                                //let firstElement = true;
-                                                for (let colname in objData[0]) {
-                                                    if (objData[0].hasOwnProperty(colname)) {
-                                                        /*if (firstElement) {
-                                                            firstElement = false;
-                                                            continue;
-                                                        }*/
-                                                        colnum += 1;
-                                                        discDiv.append(
-                                                            "<div class='row'>" +
-                                                            "<div class='col-md-1'></div>" +
-                                                            "<div class='form-group col-md-2'>" +
-                                                            "<input type='text' " +
-                                                            "class='form-control validate[required] validate[maxSize[255]]' " +
-                                                            "value='" + colname + "'>" +
-                                                            "</div>" +
-                                                            "<div class='form-group col-md-2'>" +
-                                                            "<input type='text' " +
-                                                            "class='form-control validate[required] validate[maxSize[255]]' " +
-                                                            "value='" + colname + "'>" +
-                                                            "</div>" +
-                                                            "<div class='form-group col-md-2'>" +
-                                                            "<input type='text' id='dimRange' name='dimRange' " +
-                                                            "class='form-control validate[required] validate[maxSize[255]]' " +
-                                                            "placeholder='例：2,3' >" +
-                                                            "</div>" +
-                                                            "<div class='form-group col-md-4'>" +
-                                                            "<input type='text' id='dimDesc' name='dimDesc' " +
-                                                            "class='form-control validate[required] validate[maxSize[255]]' " +
-                                                            "placeholder='描述信息' >" +
-                                                            "</div>" +
-                                                            "</div>")
-
-                                                    }
-                                                }
-                                                document.getElementById('data_size_n').value = colnum;
-                                                n = colnum;
-                                            }
-                                        }
-                                    </script>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-2"></div>
-                                    <label class="control-label" style="text-align: center; padding-left: 10px">
-                                        支持的文件扩展名：.xls，.xlsx（Excel表格文件）
-                                    </label>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-2"></div>
-                                    <label class="control-label" style="text-align: center; padding-left: 10px">
-                                        文件格式说明：表格第一行应为特征名，最后一列为目标属性，务必确保所有属性值不为空
-                                    </label>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-2"></div>
-                                    <label class="control-label" style="text-align: center; padding-left: 10px">
-                                        描述文件为数据文件样本的描述信息
-                                    </label>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-2"></div>
-                                    <label class="control-label" style="text-align: center; padding-left: 10px">
-                                        <a href="#">描述文件示例</a>
-                                        <a href="#">数据文件示例</a>
-                                    </label>
-                                </div>
+<div class="tab-pane fade" id="ck_quality" role="tabpanel" aria-labelledby="data_check_tab">
+    <div class="row">
+        <div class="col-2">
+            <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical"
+                 id="chart_type_tab">
+                <a href="#boxplot" class="nav-link" id="boxplot_tab" data-toggle="pill"
+                   role="tab" aria-controls="boxplot" aria-selected="false">单维度值分布箱型图</a>
+                <a href="#boxplotall" class="nav-link" id="boxplotall_tab" data-toggle="pill"
+                   role="tab" aria-controls="scatter" aria-selected="false">箱型图总览</a>
+            </div>
+        </div>
+        <div class="col-10">
+            <div class="tab-content" id="chart_type_content">
+                <div class="tab-pane fade show active" id="boxplot" role="tabpanel"
+                     aria-labelledby="boxplot_tab">
+                    <ul class="nav flex-column" id="bpchart_tabs" role="tablist">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
+                               role="button"
+                               aria-haspopup="true" aria-expanded="false">
+                                下拉查看各属性分布箱型图
+                            </a>
+                            <div class="dropdown-menu" style="height: 200px; overflow-y: scroll">
+                                {% with data|first as dm %}
+                                    {% for i in dm %}
+                                        <a class="nav-link dropdown-item"
+                                           id="bpchart_tab{{ forloop.counter0 }}"
+                                           data-toggle="tab"
+                                           role="tab" href="#bpchart{{ forloop.counter0 }}"
+                                           aria-selected="true">{{ i }}</a>
+                                    {% endfor %}
+                                {% endwith %}
                             </div>
-                            <div class="row">
-                                <label for="data_size_m" class="col-sm-2 control-label"
-                                       style="text-align: right; display: inline-block; height:35px; line-height: 35px">样本数</label>
-                                <div class="form-group col-md-3">
-                                    <input type="text" value="51"
-                                           class="form-control validate[required] validate[custom[number]] validate[maxSize[10]]"
-                                           placeholder="m" id="data_size_m" name="data_size_m">
-                                </div>
-                                <label for="data_size_n" class="col-sm-2 control-label"
-                                       style="text-align: right; display: inline-block; height:35px; line-height: 35px">维度</label>
-                                <div class="form-group col-md-3">
-                                    <input value="33" type="text"
-                                           class="form-control validate[required] validate[custom[number]] validate[maxSize[10]]"
-                                           placeholder="n" id="data_size_n" name="data_size_n">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="formControls col-sm-offset-2 col-sm-2"></div>
-                                <div class="formControls  col-sm-2" style="padding-left: 15px">
-                                    <button type="button" class="btn btn-success" onclick="next1()"
-                                            style="height: 45px;text-align: center;padding-top: 10px">
-                                        下一步 >
-                                    </button>
-                                    <script type="text/javascript">
-                                        function next1() {
-
-                                            if (document.getElementById('data_size_m').value !== String(m) || document.getElementById('data_size_n').value !== String(n)) {
-                                                let result = confirm('样本数或维度与上述文件不符，确定继续吗？');
-                                                if (result === true) {
-                                                    //importExcel(document.getElementById('input-excel'));
-                                                    document.getElementById('collapseOne').className = 'collapse';
-                                                    document.getElementById('collapseTwo').className = 'collapse show';
-                                                }
-                                            } else {
-                                                //importExcel(document.getElementById('input-excel'));
-                                                document.getElementById('collapseOne').className = 'collapse';
-                                                document.getElementById('collapseTwo').className = 'collapse show';
-                                            }
-
-
-                                        }
-                                    </script>
-                                </div>
-                            </div>
-                        </div>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="bpchart_content">
+                        {% with data|first as dm %}
+                            {% for i in dm %}
+                                {% if forloop.counter0 == col_start %}
+                                    <div class="tab-pane fade show active"
+                                         id="bpchart{{ forloop.counter0 }}"
+                                         role="tabpanel"
+                                         aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
+                                        <div id="bpdata_chart{{ forloop.counter0 }}"
+                                             style="width: 600px; height: 400px"></div>
+                                        <div class="row">
+                                            <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    {% if forloop.counter0 > col_start %}
+                                        <div class="tab-pane fade" id="bpchart{{ forloop.counter0 }}"
+                                             role="tabpanel"
+                                             aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
+                                            <div id="bpdata_chart{{ forloop.counter0 }}"
+                                                 style="width: 600px; height: 400px"></div>
+                                            <div class="row">
+                                                <h6>
+                                                    注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
                     </div>
                 </div>
-
-	<div class="card">
-                    <div class="card-header" id="headingTwo">
-                        <h3 class="mb-0">
-                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
-                                    data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                描述因子信息
-                            </button>
-                        </h3>
-                    </div>
-                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
-                         data-parent="#accordionExampleOne">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-1"></div>
-                                <label class="col-sm-2 control-label"
-                                       style="display: inline-block; height:35px; line-height: 35px">名称</label>
-                                <label class="col-sm-2 control-label"
-                                       style="display: inline-block; height:35px; line-height: 35px">符号</label>
-                                <label class="col-sm-2 control-label"
-                                       style="display: inline-block; height:35px; line-height: 35px">值域</label>
-                                <label class="col-sm-4 control-label"
-                                       style="display: inline-block; height:35px; line-height: 35px">描述信息</label>
-                                {# TODO: 值域 #}
-                            </div>
-                            <div id="descDiv" style="height: 600px;overflow-y: scroll;overflow-x: hidden"></div>
-                            <div class="row ">
-                                <div class="formControls col-sm-offset-2 col-sm-2"></div>
-                                <div class="formControls col-sm-offset-2 col-sm-2" style="padding-left: 15px">
-                                    <button type="button" class="btn btn-success " onclick="prev2()"
-                                            style="height: 45px;text-align: center;padding-top: 10px">
-                                        < 上一步
-                                    </button>
-                                </div>
-                                <div class="formControls  col-sm-2" style="padding-left: 15px">
-                                    <button type="button" class="btn btn-success " onclick="next2()"
-                                            style="height: 45px;text-align: center;padding-top: 10px">
-                                        下一步 >
-                                    </button>
-                                </div>
-                                <script type="text/javascript">
-                                    function prev2() {
-                                        document.getElementById('collapseTwo').className = 'collapse';
-                                        document.getElementById('collapseOne').className = 'collapse show';
-                                    }
-
-                                    function next2() {
-                                        document.getElementById('collapseTwo').className = 'collapse';
-                                        document.getElementById('collapseThree').className = 'collapse show';
-                                    }
-                                </script>
-                            </div>
-                        </div>
+                <div class="tab-pane fade" id="boxplotall" role="tabpanel" aria-labelledby="boxplotall_tab">
+                    <div id="bpallchart" style="width: 800px; height: 400px"></div>
+                    <div class="row">
+                        <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上图中数据为最大最小归一化后的值，仅供参考</h6>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <ul class="nav flex-column" id="ck_quality_tabs" role="tablist">
+        <li class="nav-item dropdown">
+            {#                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"#}
+            {#                           aria-haspopup="true" aria-expanded="false">#}
+            {#                            <span id="buttonTextDc">所有样本</span>#}
+            {#                        </a>#}
+            <div class="dropdown-menu">
+                <a class="nav-link dropdown-item" id="ck_quality_all"
+                   data-toggle="tab" onclick="selectShowDc($(this).text())"
+                   role="tab" href="#dc_table_tab_all"
+                   aria-selected="true">所有样本</a>
+            </div>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="ck_quality_content">
+        <div class="tab-pane fade show active" id="dc_table_tab_all">
+            <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                <table id="dc_table"
+                       class="table table-sm table-bordered table-hover table-responsive"></table>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;黄色背景的单元格表示该值超出本列盒图统计值的上下限</h6>
+    </div>
+</div>

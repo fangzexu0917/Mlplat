@@ -181,9 +181,9 @@
                         <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical"
                              id="chart_type_tab">
                             <a href="#boxplot" class="nav-link" id="boxplot_tab" data-toggle="pill"
-                               role="tab" aria-controls="boxplot" aria-selected="false">单维度值分布箱型图</a>
+                               role="tab" aria-controls="boxplot" aria-selected="false">单维度值分布箱型图和总览</a>
                             <a href="#boxplotall" class="nav-link" id="boxplotall_tab" data-toggle="pill"
-                               role="tab" aria-controls="scatter" aria-selected="false">箱型图总览</a>
+                               role="tab" aria-controls="scatter" aria-selected="false">样本盒图总览</a>
                         </div>
                     </div>
                     <div class="col-10">
@@ -219,7 +219,7 @@
                                                      role="tabpanel"
                                                      aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
                                                     <div id="bpdata_chart{{ forloop.counter0 }}"
-                                                         style="width: 600px; height: 400px"></div>
+                                                         style="width: 800px; height: 400px"></div>
                                                     <div class="row">
                                                         <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
                                                     </div>
@@ -241,43 +241,44 @@
                                         {% endfor %}
                                     {% endwith %}
                                 </div>
-                            </div>
-                            <div class="tab-pane fade" id="boxplotall" role="tabpanel" aria-labelledby="boxplotall_tab">
                                 <div id="bpallchart" style="width: 800px; height: 400px"></div>
                                 <div class="row">
                                     <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上图中数据为最大最小归一化后的值，仅供参考</h6>
                                 </div>
                             </div>
+                            <div class="tab-pane fade" id="boxplotall" role="tabpanel" aria-labelledby="boxplotall_tab">
+                                <ul class="nav flex-column" id="ck_quality_tabs" role="tablist">
+                                    <li class="nav-item dropdown">
+                                        {#                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"#}
+                                        {#                           aria-haspopup="true" aria-expanded="false">#}
+                                        {#                            <span id="buttonTextDc">所有样本</span>#}
+                                        {#                        </a>#}
+                                        <div class="dropdown-menu">
+                                            <a class="nav-link dropdown-item" id="ck_quality_all"
+                                               data-toggle="tab" onclick="selectShowDc($(this).text())"
+                                               role="tab" href="#dc_table_tab_all"
+                                               aria-selected="true">所有样本</a>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content" id="ck_quality_content">
+                                    <div class="tab-pane fade show active" id="dc_table_tab_all">
+                                        <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                                            <table id="dc_table"
+                                                   class="table table-sm table-bordered table-hover table-responsive"></table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;黄色背景的单元格表示该值超出本列盒图统计值的上下限</h6>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <ul class="nav flex-column" id="ck_quality_tabs" role="tablist">
-                    <li class="nav-item dropdown">
-                        {#                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"#}
-                        {#                           aria-haspopup="true" aria-expanded="false">#}
-                        {#                            <span id="buttonTextDc">所有样本</span>#}
-                        {#                        </a>#}
-                        <div class="dropdown-menu">
-                            <a class="nav-link dropdown-item" id="ck_quality_all"
-                               data-toggle="tab" onclick="selectShowDc($(this).text())"
-                               role="tab" href="#dc_table_tab_all"
-                               aria-selected="true">所有样本</a>
-                        </div>
-                    </li>
-                </ul>
 
-                <div class="tab-content" id="ck_quality_content">
-                    <div class="tab-pane fade show active" id="dc_table_tab_all">
-                        <div class="col-sm-12 table-responsive" style="overflow:auto;">
-                            <table id="dc_table"
-                                   class="table table-sm table-bordered table-hover table-responsive"></table>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="row">
-                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;黄色背景的单元格表示该值超出本列盒图统计值的上下限</h6>
-                </div>
             </div>
 
             <div class="tab-pane fade" id="correlation" role="tabpanel" aria-labelledby="correlation_tab">
@@ -1010,9 +1011,9 @@
                 let bpdata_chart = echarts.init(document.getElementById('bpdata_chart' + i.toString()));
                 bpdata_chart.setOption({
                     title: [{text: fields[i], left: 'center'}, {
-                        text: 'upper: Q3 + 1.5 * IQR \nlower: Q1 - 1.5 * IQR',
+                        text: 'upper: Q3 + 1.5 * IQR        lower: Q1 - 1.5 * IQR',
                         borderColor: '#999', borderWidth: 1,
-                        textStyle: {fontSize: 14}, left: '10%', top: '90%'
+                        textStyle: {fontSize: 14}, left: 'center', top: '6%'
                     }],
                     tooltip: {trigger: 'item'},
                     grid: {left: '10%', right: '10%', bottom: '15%'},
@@ -1049,9 +1050,9 @@
         let bpallchart = echarts.init(document.getElementById('bpallchart'));
         bpallchart.setOption({
             title: [{text: '箱型图总览', left: 'center'}, {
-                text: 'upper: Q3 + 1.5 * IQR \nlower: Q1 - 1.5 * IQR',
+                text: 'upper: Q3 + 1.5 * IQR        lower: Q1 - 1.5 * IQR',
                 borderColor: '#999', borderWidth: 1,
-                textStyle: {fontSize: 14}, left: '10%', top: '90%'
+                textStyle: {fontSize: 14}, left: 'center', top: '6%'
             }],
             tooltip: {trigger: 'item'},
             grid: {left: '10%', right: '10%', bottom: '15%'},

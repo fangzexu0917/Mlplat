@@ -370,6 +370,11 @@
                                                     if (!obj.files) {
                                                         return;
                                                     }
+                                                    if (obj.files.length === 0) {
+                                                        m = 0;
+                                                        n = 0;
+                                                        return;
+                                                    }
                                                     let f = obj.files[0];
                                                     let r = new FileReader();
                                                     r.readAsBinaryString(f);
@@ -540,9 +545,13 @@
                                             <div class="col-md-1"></div>
                                             <div class="formControls col-md-2 py-0"
                                                  style="display: inline-block; height:35px; line-height: 35px;">
-                                                <button type="button" class="btn btn-light text-left col"
-                                                        onclick="automaticNumbering()">编号
-                                                </button>
+                                                <span class="select-box radius mt-20"
+                                                      style="margin: 0">
+                                                    <select class="form-control" id="count">
+                                                        <option selected>编号</option>
+                                                        <option>自动编号</option>
+                                                    </select>
+                                                </span>
                                                 <script>
                                                     function automaticNumbering() {
                                                         let temp = $('#sampleDiv .num');
@@ -550,6 +559,14 @@
                                                             temp.eq(i).val(String(Number(i) + 1));
                                                         }
                                                     }
+
+                                                    $(function () {
+                                                        $('#count').change(function () {
+                                                            if ($('#count').val() === '自动编号') {
+                                                                automaticNumbering();
+                                                            }
+                                                        });
+                                                    });
                                                 </script>
                                             </div>
                                             <label class="col-md-2 control-label"
