@@ -1,0 +1,1466 @@
+{% extends 'base_index.html' %}
+{% load static %}
+{% block title %}质量检测{% endblock %}
+
+{% block script %}
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+          integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'bootstrap-table-develop/dist/bootstrap-table.css' %}">
+
+    <script type="text/javascript" src="{% static 'bootstrap-table-develop/dist/bootstrap-table.js' %}"></script>
+    <script type="text/javascript"
+            src="{% static 'bootstrap-table-develop/dist/locale/bootstrap-table-zh-CN.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'x-editable-develop/dist/bootstrap3-editable/css/bootstrap-editable.css' %}">
+    <script type="text/javascript"
+            src="{% static 'x-editable-develop/dist/bootstrap3-editable/js/bootstrap-editable.js' %}"></script>
+    <script type="text/javascript"
+            src="{% static 'bootstrap-table-develop/dist/extensions/editable/bootstrap-table-editable.js' %}"></script>
+
+    <script type="text/javascript"
+            src="{% static 'tableExport.jquery.plugin/libs/FileSaver/FileSaver.min.js' %}"></script>
+    {#    <script type="text/javascript"#}
+    {#            src="{% static 'tableExport.jquery.plugin/libs/js-xlsx/xlsx.core.min.js' %}"></script>#}
+    <script type="text/javascript"
+            src="{% static 'tableExport.jquery.plugin/libs/js-xlsx/xlsx.full.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'tableExport.jquery.plugin/tableExport.js' %}"></script>
+    <script type="text/javascript"
+            src="{% static 'bootstrap-table-develop/dist/extensions/export/bootstrap-table-export.js' %}"></script>
+    <script type="text/javascript" src="{% static 'incubator-echarts-4.7.0/dist/echarts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'incubator-echarts-4.7.0/echarts-gl.js' %}"></script>
+    <script type="text/javascript" src="{% static 'incubator-echarts-4.7.0/dist/extension/dataTool.js' %}"></script>
+{% endblock %}
+
+{% block style %}
+    <style>
+        .w100 .th-inner {
+            width: 100px;
+        }
+
+        .panel-title > p {
+            margin: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container" style="margin-top: 2%;">
+        <div class="row">
+            <button id="uploadButton" type="button" class="btn btn-lg btn btn-success btn-arrow-right"
+                    onclick='window.location.href="{% url 'upload' %}"'>数据上传
+            </button>
+            <button id="showDataButton" type="button" class="btn btn-lg btn btn-success btn-arrow-right" disabled
+                    onclick='window.location.href="{% url 'qualitycontrol' dataname %}"'>数据质量检测
+            </button>
+            <button id="beginFSButton" type="button" class="btn btn-lg btn btn-info btn-arrow-right"
+                    onclick='window.location.href="{% url 'domainknowledgeembedding' dataname %}"'>构效关系建模
+            </button>
+            <button id="beginMLButton" type="button" class="btn btn-lg btn btn-info btn-arrow-right"
+                    onclick='window.location.href="{% url 'machinelearning' dataname 'qualitycontrol' %}"'>性能预测
+            </button>
+        </div>
+
+        <ul class="nav nav-tabs" id="data_tabs" role="tablist" style="padding-top: 2%; margin-bottom: 2%">
+            <li class="nav-item">
+                <a class="nav-link active" href="#raw_data" data-toggle="tab">数据的可溯源性管理</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#distribution" data-toggle="tab">数据分布特征分析</a> {# TODO:  #}
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#ck_quality" data-toggle="tab">数据的正确性检验</a> {# TODO: 盒图检验，规则检验，增加全属性盒图 #}
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#correlation" data-toggle="tab">数据的相关性检验</a> {# TODO: 图等宽 #}
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#reliability" data-toggle="tab">数据的可靠性检验</a> {# TODO: 正确性检验中的样本级别异常识别 #}
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#balance" data-toggle="tab">数据的探索性分析</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="data_tab_content">
+            <div class="tab-pane fade show active" id="raw_data" role="tabpanel" aria-labelledby="raw_data_tab">
+                <div class="row">
+                    <div class="col-sm-12" style="overflow:auto;">
+                        <table id="raw_table"
+                               class="table table-sm table-hover table-responsive"></table>
+                    </div>
+                </div>
+                <div class="row">
+                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上表内容为原始数据</h6>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="distribution" role="tabpanel" aria-labelledby="data_statistics_tab">
+                <div class="row">
+                    <div class="col-3">
+                        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical"
+                             id="chart_type_tab">
+                            <a href="#histogram" class="nav-link active" id="histogram_tab" data-toggle="pill"
+                               role="tab" aria-controls="histogram" aria-selected="true">单维度值分布直方图</a>
+                            <a href="#scatter" class="nav-link" id="scatter_tab" data-toggle="pill"
+                               role="tab" aria-controls="scatter" aria-selected="false">样本空间分布散点图</a>
+                        </div>
+                    </div>
+                    <div class="col-9">
+                        <div class="tab-content" id="chart_type_content">
+                            <div class="tab-pane fade show active" id="histogram" role="tabpanel"
+                                 aria-labelledby="histogram_tab">
+                                <ul class="nav flex-column" id="chart_tabs" role="tablist">
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
+                                           role="button"
+                                           aria-haspopup="true" aria-expanded="false">
+                                            下拉查看各属性分布直方图
+                                        </a>
+                                        <div class="dropdown-menu" style="height: 200px; overflow-y: scroll">
+                                            {% with data|first as dm %}
+                                                {% for i in dm %}
+                                                    <a class="nav-link dropdown-item"
+                                                       id="chart_tab{{ forloop.counter0 }}"
+                                                       data-toggle="tab"
+                                                       role="tab" href="#chart{{ forloop.counter0 }}"
+                                                       aria-selected="true">{{ i }}</a>
+                                                {% endfor %}
+                                            {% endwith %}
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="chart_content">
+                                    {% with data|first as dm %}
+                                        {% for i in dm %}
+                                            {% if forloop.counter0 == col_start %}
+                                                <div class="tab-pane fade show active" id="chart{{ forloop.counter0 }}"
+                                                     role="tabpanel" aria-labelledby="chart_tab{{ forloop.counter0 }}">
+                                                    <div id="data_chart{{ forloop.counter0 }}"
+                                                         style="width: 600px; height: 400px"></div>
+                                                </div>
+                                            {% else %}
+                                                {% if forloop.counter0 > col_start %}
+                                                    <div class="tab-pane fade" id="chart{{ forloop.counter0 }}"
+                                                         role="tabpanel"
+                                                         aria-labelledby="chart_tab{{ forloop.counter0 }}">
+                                                        <div id="data_chart{{ forloop.counter0 }}"
+                                                             style="width: 600px; height: 400px"></div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="scatter" role="tabpanel" aria-labelledby="scatter_tab">
+                                <div id="scatterchart" style="width: 600px; height: 400px"></div>
+                                <div id="scatter3dchart" style="width: 600px; height: 400px"></div>
+                                <div class="row">
+                                    <h6>
+                                        注：&nbsp;&nbsp;&nbsp;&nbsp;上图为数据样本降维后的数据，坐标值仅供参考</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                        <table id="stat_table"
+                               class="table table-sm table-bordered table-hover table-responsive"></table>
+                    </div>
+                </div>
+                <div class="row">
+                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上表内容为数据的基本统计信息</h6>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="ck_quality" role="tabpanel" aria-labelledby="data_check_tab">
+                <div class="row">
+                    <div class="col-2">
+                        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical"
+                             id="chart_type_tab">
+                            <a href="#boxplot" class="nav-link" id="boxplot_tab" data-toggle="pill"
+                               role="tab" aria-controls="boxplot" aria-selected="false">单维度值分布箱型图和总览</a>
+                            <a href="#boxplotall" class="nav-link" id="boxplotall_tab" data-toggle="pill"
+                               role="tab" aria-controls="scatter" aria-selected="false">样本维度数据表总览</a>
+                        </div>
+                    </div>
+                    <div class="col-10">
+                        <div class="tab-content" id="chart_type_content">
+                            <div class="tab-pane fade show active" id="boxplot" role="tabpanel"
+                                 aria-labelledby="boxplot_tab">
+                                <ul class="nav flex-column" id="bpchart_tabs" role="tablist">
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
+                                           role="button"
+                                           aria-haspopup="true" aria-expanded="false">
+                                            下拉查看各属性分布箱型图
+                                        </a>
+                                        <div class="dropdown-menu" style="height: 200px; overflow-y: scroll">
+                                            {% with data|first as dm %}
+                                                {% for i in dm %}
+                                                    <a class="nav-link dropdown-item"
+                                                       id="bpchart_tab{{ forloop.counter0 }}"
+                                                       data-toggle="tab"
+                                                       role="tab" href="#bpchart{{ forloop.counter0 }}"
+                                                       aria-selected="true">{{ i }}</a>
+                                                {% endfor %}
+                                            {% endwith %}
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="bpchart_content">
+                                    {% with data|first as dm %}
+                                        {% for i in dm %}
+                                            {% if forloop.counter0 == col_start %}
+                                                <div class="tab-pane fade show active"
+                                                     id="bpchart{{ forloop.counter0 }}"
+                                                     role="tabpanel"
+                                                     aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
+                                                    <div id="bpdata_chart{{ forloop.counter0 }}"
+                                                         style="width: 800px; height: 400px"></div>
+                                                    <div class="row">
+                                                        <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                {% if forloop.counter0 > col_start %}
+                                                    <div class="tab-pane fade" id="bpchart{{ forloop.counter0 }}"
+                                                         role="tabpanel"
+                                                         aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
+                                                        <div id="bpdata_chart{{ forloop.counter0 }}"
+                                                             style="width: 600px; height: 400px"></div>
+                                                        <div class="row">
+                                                            <h6>
+                                                                注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                </div>
+                                <div id="bpallchart" style="width: 800px; height: 400px"></div>
+                                <div class="row">
+                                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上图中数据为最大最小归一化后的值，仅供参考</h6>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="boxplotall" role="tabpanel" aria-labelledby="boxplotall_tab">
+                                <ul class="nav flex-column" id="ck_quality_tabs" role="tablist">
+                                    <li class="nav-item dropdown">
+                                        {#                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"#}
+                                        {#                           aria-haspopup="true" aria-expanded="false">#}
+                                        {#                            <span id="buttonTextDc">所有样本</span>#}
+                                        {#                        </a>#}
+                                        <div class="dropdown-menu">
+                                            <a class="nav-link dropdown-item" id="ck_quality_all"
+                                               data-toggle="tab" onclick="selectShowDc($(this).text())"
+                                               role="tab" href="#dc_table_tab_all"
+                                               aria-selected="true">所有样本</a>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content" id="ck_quality_content">
+                                    <div class="tab-pane fade show active" id="dc_table_tab_all">
+                                        <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                                            <table id="dc_table"
+                                                   class="table table-sm table-bordered table-hover table-responsive"></table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;黄色背景的单元格表示该值超出本列盒图统计值的上下限</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="tab-pane fade" id="correlation" role="tabpanel" aria-labelledby="correlation_tab">
+                <ul class="nav flex-column" id="corr_tabs" role="tablist">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+                           aria-haspopup="true" aria-expanded="false">
+                            <span id="buttonTextCorr">Pearson相关性</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="nav-link dropdown-item" id="pearsonr"
+                               data-toggle="tab" onclick="selectShowCorr($(this).text())"
+                               role="tab" href="#pearsonr_tab"
+                               aria-selected="true">Pearson相关性</a>
+                            <a class="nav-link dropdown-item" id="kendallr"
+                               data-toggle="tab" onclick="selectShowCorr($(this).text())"
+                               role="tab" href="#kendallr_tab"
+                               aria-selected="true">Kendall相关性</a>
+                            <a class="nav-link dropdown-item" id="spearmanr"
+                               data-toggle="tab" onclick="selectShowCorr($(this).text())"
+                               role="tab" href="#spearmanr_tab"
+                               aria-selected="true">Spearman相关性</a>
+                        </div>
+                        <script>
+                            function selectShowCorr(a) {
+                                $('#buttonTextCorr').text(a)
+                            }
+                        </script>
+                    </li>
+                </ul>
+                <div class="tab-content" id="corr_content">
+                    <div class="tab-pane fade show active" id="pearsonr_tab">
+                        <div class="row">
+                            <div id="pearsoncorrchart" style="width: 1000px;height:600px;margin: 0 auto"></div>
+                        </div>
+                        <div class="col-sm-12 table-responsive" style="overflow: auto">
+                            <table class="table table-sm table-bordered table-hover table-responsive"
+                                   id="pearson_corr_table"></table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="kendallr_tab">
+                        <div class="row">
+                            <div id="kendallcorrchart" style="margin: 0 auto;width: 1000px;height:600px;"></div>
+                        </div>
+                        <div class="col-sm-12 table-responsive" style="overflow: auto">
+                            <table class="table table-sm table-bordered table-hover table-responsive"
+                                   id="kendall_corr_table"></table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="spearmanr_tab">
+                        <div class="row">
+                            <div id="spearmancorrchart" style="margin: 0 auto;width: 1000px;height:600px;"></div>
+                        </div>
+                        <div class="col-sm-12 table-responsive" style="overflow: auto">
+                            <table class="table table-sm table-bordered table-hover table-responsive"
+                                   id="spearman_corr_table"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="reliability" role="tabpanel" aria-labelledby="reliability_tab">
+                <ul class="nav flex-column" id="ck_reliability_tabs" role="tablist">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+                           aria-haspopup="true" aria-expanded="false">
+                            <span id="buttonTextDc">局部异常因子检测</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="nav-link dropdown-item" id="ck_reliability_lof"
+                               data-toggle="tab" onclick="selectShowDc($(this).text())"
+                               role="tab" href="#dc_table_tab_lof"
+                               aria-selected="true">局部异常因子检测</a>
+                            <a class="nav-link dropdown-item" id="ck_reliability_if"
+                               data-toggle="tab" onclick="selectShowDc($(this).text())"
+                               role="tab" href="#dc_table_tab_if"
+                               aria-selected="true">孤立森林检测</a>
+                            <a class="nav-link dropdown-item" id="ck_reliability_reg"
+                               data-toggle="tab" onclick="selectShowDc($(this).text())"
+                               role="tab" href="#dc_table_tab_reg"
+                               aria-selected="true">相似样本对比分析</a>
+                            <script>
+                                function selectShowDc(a) {
+                                    $('#buttonTextDc').text(a)
+                                }
+                            </script>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="ck_reliability_content">
+                    <div class="tab-pane fade show active" id="dc_table_tab_lof">
+                        <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                            <table id="dc_table_lof"
+                                   class="table table-sm table-bordered table-hover table-responsive"></table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="dc_table_tab_if">
+                        <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                            <table id="dc_table_if"
+                                   class="table table-sm table-bordered table-hover table-responsive"></table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="dc_table_tab_reg">
+                        <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                            <table id="dc_table_reg"
+                                   class="table table-sm table-bordered table-hover table-responsive"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="balance" role="tabpanel" aria-labelledby="balance_tab"></div>
+
+            <div class="tab-pane fade" id="data_visualize" role="tabpanel" aria-labelledby="data_visualize_tab">
+
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+
+        function isInteger(arg) {
+            return new RegExp("^[0-9]*$").test(arg)
+        }
+
+        function isFloat(arg) {
+            return new RegExp("^(-?\\d+)(\\.\\d+)?$").test(arg)
+        }
+
+        function stat_name_mapper(fn) {
+            let temp = {};
+            temp["count"] = "样本数";
+            temp["mean"] = "平均值";
+            temp["std"] = "标准差";
+            temp["min"] = "最小值";
+            temp["max"] = "最大值";
+            temp["range"] = "极差";
+            temp["IQR"] = "四分位距";
+            temp["lower"] = "值下限";
+            temp["upper"] = "值上限";
+            temp["geomean"] = "几何平均值";
+            temp["skew"] = "偏度";
+            temp["25%"] = "下四分位数";
+            temp["50%"] = "中位数";
+            temp["75%"] = "上四分位数";
+            return temp[fn]
+        }
+
+        let sampleList = [];
+        $.ajax({
+            url: '/data/' + '{{ dataname }}',
+            type: 'get',
+            async: true,
+            success: function (res) {
+                sampleList = eval(res);
+                let sampleColumns = [];
+
+                for (let key in sampleList[0]) {
+                    if (sampleList[0].hasOwnProperty(key)) {
+                        sampleColumns.push({
+                            title: $('<div/>').text(key).html(),
+                            field: key,
+                            visible: true,
+                            formatter: function (value) {
+                                if (!isFloat(value)) {
+                                    return value;  // if value is not float or integer, return value
+                                }
+                                if (isInteger(value)) {
+                                    return value;  // if value is integer, return value
+                                }
+                                return value.toFixed(5);  // if value is float, return fixed float
+                            }
+                        });
+                    }
+                }
+
+                $('#raw_table').bootstrapTable({
+                    data: sampleList,
+                    theadClasses: "thead-light",
+                    pagination: true,
+                    pageSize: '15',
+                    columns: sampleColumns,
+                    showColumns: true,
+                    showToggle: true,
+                    search: true,
+                    showExport: true,
+                    exportDataType: "all",
+                    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+                });
+
+                let suspected = [];
+                let eudist = {{ eudist|safe }};
+                for (let it in eudist) {
+                    if (eudist.hasOwnProperty(it)) {
+                        suspected.push(eudist[it]['NO'])
+                    }
+                }
+                let check_title = [];
+                check_title.push({
+                    title: '操作',
+                    formatter: function (value, row, index) {
+                        let idx = index;
+                        let url = "{% url 'edit' dataname 12345 %}";  // django 模板语言不支持使用JS变量，故用12345作占位符再替换
+                        url = url.replace('12345', idx);
+                        let s = '<a href="' + url + '">修改</a>';
+                        return [s].join("")
+                    }
+                });
+
+                let lower = {};
+                let upper = {};
+                let stat = {{ stat|safe }};
+                for (let item in stat) {
+                    if (stat.hasOwnProperty(item)) {
+                        lower[item] = stat[item]['lower'];
+                        upper[item] = stat[item]['upper'];
+                    }
+                }
+                let idx = 1;
+                for (let i in sampleList[0]) {
+                    if (sampleList[0].hasOwnProperty(i)) {
+                        if (typeof (sampleList[0][i]) == 'number') {
+                            check_title[idx] = {
+                                field: i,
+                                title: $('<div/>').text(i).html(),
+                                formatter: function (value) {
+                                    if (!isInteger(value)) {
+                                        return value.toFixed(5);
+                                    }
+                                    return value;
+                                },
+                                cellStyle: function (value, row, index, field) {
+                                    if (value === '' || undefined) {
+                                        return {css: {"background-color": 'red'}};
+                                    } else if ((Number(value) < Number(lower[field]) || Number(value) > Number(upper[field]))) {
+                                        return {css: {"background-color": 'yellow'}};
+                                        //                            } else if (suspected.includes(index) && field === 'NO') {
+                                        //                                return {css: {"background-color": 'yellow'}};
+                                    } else {
+                                        return {}
+                                    }
+                                },
+
+                            };
+                            idx++;
+                        }
+                    }
+                }
+
+                $('#dc_table').bootstrapTable({
+                    data: sampleList,
+                    theadClasses: "thead-light",
+                    pagination: true,
+                    pageSize: '15',
+                    columns: check_title,
+                    showColumns: true,
+                    showToggle: true,
+                    search: true,
+                    showExport: true,
+                    exportDataType: "all",
+                    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+                    exportOptions: {ignoreColumn: [0]},
+//                rowStyle: function (row, index) {
+//                    if (suspected.includes(index)) {
+//                        return {css: {"background-color": 'yellow'}}
+//                    } else {
+//                        return {}
+//                    }
+//                    for (var i in algo['llof']) {
+//                        if (index === i) {
+//                            return {css: {"color": 'red'}}
+//                        }
+//                    }
+//                    for (var i in algo['lif']) {
+//                        if (index === i) {
+//                            return {css: {"color": 'red'}}
+//                        }
+//                    }
+//                    return {};
+//                },
+                    rowAttributes: function (row, index) {
+                        if (suspected.includes(index)) {
+                            let cnt;
+                            for (let it in eudist) {
+                                if (eudist.hasOwnProperty(it)) {
+                                    if (index === eudist[it]['NO']) {
+                                        cnt = eudist[it]['count'];
+                                    }
+                                }
+                            }
+                            return {
+                                'data-toggle': 'popover',
+                                'data-placement': 'bottom',
+                                'data-trigger': 'hover',
+                                'data-index': index,
+                                'title': ['NO:' + index, '该样本与其他' + cnt + '个样本规则差异大'].join(',')
+                            }
+                        } else {
+                            return {}
+                        }
+                    }
+                });
+
+                let algo = {{ algo|safe }};
+                let lofSampleList = [];
+                for (let idx = 0; idx < sampleList.length; idx++) {
+                    if (algo['lof'].includes(idx)) {
+                        lofSampleList.push(sampleList[idx])
+                    }
+                }
+
+                $('#dc_table_lof').bootstrapTable({
+                    data: lofSampleList,
+                    theadClasses: "thead-light",
+                    pagination: true,
+                    pageSize: '15',
+                    columns: check_title,
+                    showColumns: true,
+                    showToggle: true,
+                    search: true,
+                    showExport: true,
+                    exportDataType: "all",
+                    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+                    exportOptions: {ignoreColumn: [0]},
+                });
+
+                let ifSampleList = [];
+                for (let idx = 0; idx < sampleList.length; idx++) {
+                    if (algo['if'].includes(idx)) {
+                        ifSampleList.push(sampleList[idx])
+                    }
+                }
+
+                $('#dc_table_if').bootstrapTable({
+                    data: ifSampleList,
+                    theadClasses: "thead-light",
+                    pagination: true,
+                    pageSize: '15',
+                    columns: check_title,
+                    showColumns: true,
+                    showToggle: true,
+                    search: true,
+                    showExport: true,
+                    exportDataType: "all",
+                    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+                    exportOptions: {ignoreColumn: [0]},
+                });
+
+                let regSampleList = [];
+                for (let idx in eudist) {
+                    if (eudist.hasOwnProperty(idx)) {
+                        regSampleList.push(sampleList[eudist[idx]['NO']])
+                    }
+                }
+
+
+                $('#dc_table_reg').bootstrapTable({
+                    data: regSampleList,
+                    theadClasses: "thead-light",
+                    pagination: true,
+                    pageSize: '15',
+                    columns: check_title,
+                    showColumns: true,
+                    showToggle: true,
+                    search: true,
+                    showExport: true,
+                    exportDataType: "all",
+                    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+                    exportOptions: {ignoreColumn: [0]},
+                });
+            }
+        });
+
+        let statList = [];
+        $.ajax({
+            url: '/data/' + 'stat_data_quality_' + '{{ dataname }}',
+            type: 'get',
+            async: true,
+            success: function (res) {
+                statList = eval(res);
+                let statColumns = [];
+
+                statColumns.push({
+                    title: '',
+                    class: 'w100',
+                    field: "dataQualityField"
+                })
+
+                let dataqualityfields = [];
+
+                for (let item in statList[0]) {
+                    if (statList[0].hasOwnProperty(item)) {
+                        for (let fn in statList[0][item]) {
+                            if (statList[0][item].hasOwnProperty(fn)) {
+                                let temp = {};
+                                temp["dataQualityField"] = stat_name_mapper(fn);
+                                for (let iii in statList) {
+                                    if (statList.hasOwnProperty(iii)) {
+                                        for (let iain in statList[iii]) {
+                                            if (statList[iii].hasOwnProperty(iain)) {
+                                                if (isInteger(statList[iii][iain][fn])) {
+                                                    temp[iain] = statList[iii][iain][fn]
+                                                } else {
+                                                    temp[iain] = statList[iii][iain][fn].toFixed(5);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                dataqualityfields.push(temp)
+                            }
+                        }
+                    }
+                }
+                for (let idx = 0; idx < statList.length; idx++) {
+                    for (let key in statList[idx]) {
+                        if (statList[idx].hasOwnProperty(key)) {
+                            statColumns.push({
+                                title: $('<div/>').text(key).html(),
+                                field: key,
+                            })
+                        }
+                    }
+                }
+
+                $('#stat_table').bootstrapTable({
+                    data: dataqualityfields,
+                    theadClasses: "thead-light",
+                    pagination: true,
+                    pageSize: '15',
+                    editable: {type: "text"},
+                    columns: statColumns,
+                    showColumns: true,
+                    showToggle: true,
+                    search: true,
+                    showExport: true,
+                    exportDataType: "all",
+                    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+                });
+            }
+        });
+
+        {#let algoList = [];#}
+        {#$.ajax({#}
+        {#    url: '/data/' + 'algo_data_quality_' + '{{ dataname }}',#}
+        {#    type: 'get',#}
+        {#    async: true,#}
+        {#    success: function (res) {#}
+        {#        algoList = eval(res);#}
+        {#        console.log('algo:', algoList);#}
+        {#    }#}
+        //});
+        {##}
+        {#let eudistList = [];#}
+        {#$.ajax({#}
+        {#    url: '/data/' + 'eudist_data_quality_' + '{{ dataname }}',#}
+        {#    type: 'get',#}
+        {#    async: true,#}
+        {#    success: function (res) {#}
+        {#        eudistList = eval(res);#}
+        {#        console.log('eudist:', eudistList);#}
+        {#    }#}
+        //});
+
+        $(function () {
+            {#let data = {{ data|safe }};#}
+            {#let stat = {{ stat|safe }};#}
+            {#let eudist = {{ eudist|safe }};#}
+            {#let algo ={{ algo|safe }};#}
+            {##}
+            {#let editable = {type: "text"};#}
+            {##}
+            {#let suspected = [];#}
+            {#for (let it in eudist) {#}
+            {#    if (eudist.hasOwnProperty(it)) {#}
+            {#        suspected.push(eudist[it]['NO'])#}
+            {#    }#}
+//            }
+            {##}
+            {#let raw_data = JSON.parse(JSON.stringify(data)); // 深拷贝 修改rawdata不影响data#}
+            //var quality_title = [];
+            //var raw_title = [];
+            //raw_title.push({title: 'NO', class: 'w100', field: "NO",});
+            //quality_title.push({title: '', class: 'w100', field: "dataQualityField"});
+
+            {#var dataqualityfields = [];#}
+            {#for (var item in stat) {#}
+            {#    for (var fn in stat[item]) {#}
+            {#        var temp = {};#}
+            {#        temp["dataQualityField"] = stat_name_mapper(fn);#}
+            {#        for (var iiiii in stat) {#}
+            {#            temp[iiiii] = stat[iiiii][fn].toFixed(5);#}
+            {#        }dataqualityfields.push(temp);}break;}#}
+
+            {#for (var item in stat) {#}
+            {#    raw_title.push({#}
+            {#        field: item,#}
+            {#        class: 'w100',#}
+            {#        title: $('<div/>').text(item).html(),});#}
+            {#    quality_title.push({#}
+            {#        field: item,#}
+            {#        class: 'w100',#}
+            {#        title: $('<div/>').text(item).html(),});}#}
+
+            {#for (let i in raw_data) {#}
+            {#    if (raw_data.hasOwnProperty(i)) {#}
+            {#        for (let j in raw_data[i]) {#}
+            {#            if (raw_data[i].hasOwnProperty(j)) {#}
+            {#                if (typeof (raw_data[i][j]) == 'number' && j !== 'NO') {#}
+            {#                    raw_data[i][j] = raw_data[i][j].toFixed(5);#}
+            {#                }#}
+            {#            }#}
+            {#        }#}
+            {#    }#}
+//            }
+
+            {#let check_title = [];#}
+            {#check_title.push({#}
+            {#    title: '操作',#}
+            {#    formatter: function (value, row, index) {#}
+            {#        let idx = index;#}
+            {#        let url = "{% url 'edit' dataname 12345 %}";  // django 模板语言不支持使用JS变量，故用12345作占位符再替换#}
+            {#        url = url.replace('12345', idx);#}
+            {#        let s = '<a href="' + url + '">修改</a>';#}
+            {#        return [s].join("")#}
+//                }
+//            });
+
+            {#let lower = {};#}
+            {#let upper = {};#}
+            {#for (let item in stat) {#}
+            {#    if (stat.hasOwnProperty(item)) {#}
+            {#        lower[item] = stat[item]['lower'];#}
+            {#        upper[item] = stat[item]['upper'];#}
+//                }
+//            }
+            {#let idx = 1;#}
+            {#for (let i in data[0]) {#}
+            {#    if (data[0].hasOwnProperty(i)) {#}
+            {#        if (typeof (data[0][i]) == 'number') {#}
+            {#            check_title[idx] = {#}
+            {#                field: i,#}
+            {#                title: $('<div/>').text(i).html(),#}
+            {#                formatter: function (value) {#}
+            {#                    if (!isInteger(value)) {#}
+            {#                        return value.toFixed(5);#}
+//                                }
+            {#return value;#}
+//                            },
+            {#cellStyle: function (value, row, index, field) {#}
+            {#    if (value === '' || undefined) {#}
+            {#        return {css: {"background-color": 'red'}};#}
+            {#    } else if ((Number(value) < Number(lower[field]) || Number(value) > Number(upper[field]))) {#}
+            {#        return {css: {"background-color": 'yellow'}};#}
+            {#        //                            } else if (suspected.includes(index) && field === 'NO') {#}
+            {#        //                                return {css: {"background-color": 'yellow'}};#}
+            {#    } else {#}
+            {#        return {}#}
+//                                }
+//                            },
+
+//                        };
+            {#idx++;#}
+//                    }
+//                }
+//            }
+
+            {#$('#raw_table').bootstrapTable({#}
+            {#    data: raw_data,#}
+            {#    datatype: 'json',#}
+            {#    pagination: true,#}
+            {#    pageSize: '15',#}
+            {#    editable: editable,#}
+            {#    columns: raw_title,#}
+            {#    showColumns: true,#}
+            {#    showToggle: true,#}
+            {#    search: true,#}
+            {#    showExport: true,#}
+            {#    exportDataType: "all",#}
+            {#    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],#}
+
+            {#$('#stat_table').bootstrapTable({#}
+            {#    data: dataqualityfields,#}
+            {#    datatype: 'json',#}
+            {#    pagination: true,#}
+            {#    pageSize: '15',#}
+            {#    editable: editable,#}
+            {#    columns: quality_title,#}
+            {#    showColumns: true,#}
+            {#    showToggle: true,#}
+            {#    search: true,#}
+            {#    showExport: true,#}
+            {#    exportDataType: "all",#}
+            {#    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],#}
+
+            {#            $('#dc_table').bootstrapTable({#}
+            {#                method: 'post',#}
+            {#                data: data,#}
+            {#                datatype: 'json',#}
+            {#                pagination: true,#}
+            {#                pageSize: '15',#}
+            {#                columns: check_title,#}
+            {#                showColumns: true,#}
+            {#                showToggle: true,#}
+            {#                search: true,#}
+            {#                showExport: true,#}
+            {#                exportDataType: "all",#}
+            {#                exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],#}
+            {#                exportOptions: {ignoreColumn: [0]},#}
+            {#//                rowStyle: function (row, index) {#}
+            {#//                    if (suspected.includes(index)) {#}
+            {#//                        return {css: {"background-color": 'yellow'}}#}
+            {#//                    } else {#}
+            {#//                        return {}#}
+            {#//                    }#}
+            {#//                    for (var i in algo['llof']) {#}
+            {#//                        if (index === i) {#}
+            {#//                            return {css: {"color": 'red'}}#}
+            {#//                        }#}
+            {#//                    }#}
+            {#//                    for (var i in algo['lif']) {#}
+            {#//                        if (index === i) {#}
+            {#//                            return {css: {"color": 'red'}}#}
+            {#//                        }#}
+            {#//                    }#}
+            {#//                    return {};#}
+            {#//                },#}
+            {#                rowAttributes: function (row, index) {#}
+            {#                    if (suspected.includes(index)) {#}
+            {#                        let cnt;#}
+            {#                        for (let it in eudist) {#}
+            {#                            if (eudist.hasOwnProperty(it)) {#}
+            {#                                if (index === eudist[it]['NO']) {#}
+            {#                                    cnt = eudist[it]['count'];#}
+            {#                                }#}
+            {#                            }#}
+            {#                        }#}
+            {#                        return {#}
+            {#                            'data-toggle': 'popover',#}
+            {#                            'data-placement': 'bottom',#}
+            {#                            'data-trigger': 'hover',#}
+            {#                            'data-index': index,#}
+            {#                            'title': ['NO:' + index, '该样本与其他' + cnt + '个样本规则差异大'].join(',')#}
+            {#                        }#}
+            {#                    } else {#}
+            {#                        return {}#}
+            {#                    }#}
+            {#                }#}
+            {##}
+            {#            });#}
+        })
+    </script>
+
+
+    <script type="text/javascript">
+        let rawdata = {{ data|safe }};
+        let datafield = {};  // {field: [value]}
+
+        for (let ii in rawdata[0]) {
+            if (rawdata[0].hasOwnProperty(ii)) {
+                datafield[ii] = [];
+                for (let iii = 0; iii < rawdata.length; iii++) {
+                    datafield[ii].push(rawdata[iii][ii]);
+                }
+            }
+        }
+
+        let fields = [];
+        for (let i in datafield) {
+            fields.push(i);
+        }
+        let fielddata = [];
+        for (let i in datafield) {
+            fielddata.push(datafield[i])
+        }
+
+        function getMaxV(distributionInfo) {
+            let max = 0
+            for (let idx = 0; idx < distributionInfo.length; idx++) {
+                if (max < distributionInfo[idx])
+                    max = distributionInfo[idx]
+            }
+            return max
+        }
+
+        // 获取最小值
+        function getMinV(distributionInfo) {
+            let min = 1000000
+            for (let idx = 0; idx < distributionInfo.length; idx++) {
+                if (min > distributionInfo[idx])
+                    min = distributionInfo[idx]
+            }
+            return min
+        }
+
+        // 归一化处理
+        function normalization(distribution, max, min) {
+            return (distribution - min) / (max - min)
+        }
+
+        let normed_fielddata = [];
+        for (let v in fielddata) {
+            if (fielddata.hasOwnProperty(v)) {
+                let etmp = [];
+                for (let eidx = 0; eidx < fielddata[v].length; eidx++) {
+                    etmp.push(normalization(fielddata[v][eidx], getMaxV(fielddata[v]), getMinV(fielddata[v])))
+                }
+                normed_fielddata.push(etmp);
+            }
+        }
+
+        for (let i = 0; i < Object.keys(datafield).length; i++) {
+            try {
+                let data_chart = echarts.init(document.getElementById('data_chart' + i.toString()));
+                data_chart.setOption({
+                    title: {text: fields[i], left: 'center'},
+                    xAxis: {
+                        data: datafield['NO']
+                    },
+                    yAxis: {},
+                    series: [{
+                        type: 'bar',
+                        data: datafield[fields[i]]
+                    }]
+                });
+
+                let bpdata = echarts.dataTool.prepareBoxplotData([fielddata[i]]);
+                let bpdata_chart = echarts.init(document.getElementById('bpdata_chart' + i.toString()));
+                bpdata_chart.setOption({
+                    title: [{text: fields[i], left: 'center'}, {
+                        text: 'upper: Q3 + 1.5 * IQR        lower: Q1 - 1.5 * IQR',
+                        borderColor: '#999', borderWidth: 1,
+                        textStyle: {fontSize: 14}, left: 'center', top: '6%'
+                    }],
+                    tooltip: {trigger: 'item'},
+                    grid: {left: '10%', right: '10%', bottom: '15%'},
+                    xAxis: {type: 'category', data: bpdata.axisData},
+                    yAxis: {type: 'value'},
+                    series: [
+                        {
+                            name: 'boxplot', type: 'boxplot', data: bpdata.boxData,
+                            tooltip: {
+                                formatter: function (param) {
+                                    return [
+                                        'upper: ' + param.data[5],
+                                        'Q3: ' + param.data[4],
+                                        'median: ' + param.data[3],
+                                        'Q1: ' + param.data[2],
+                                        'lower: ' + param.data[1]
+                                    ].join('<br/>');
+                                }
+                            }
+                        }, {
+                            name: 'outlier', type: 'scatter', data: bpdata.outliers
+                        }
+                    ]
+                });
+
+            } catch (e) {
+                console.log(i);
+                console.log(e);
+            }
+        }
+
+        let bpalldata = echarts.dataTool.prepareBoxplotData(normed_fielddata);
+        bpalldata.axisData = {{ col_name|safe }};
+        let bpallchart = echarts.init(document.getElementById('bpallchart'));
+        bpallchart.setOption({
+            title: [{text: '箱型图总览', left: 'center'}, {
+                text: 'upper: Q3 + 1.5 * IQR        lower: Q1 - 1.5 * IQR',
+                borderColor: '#999', borderWidth: 1,
+                textStyle: {fontSize: 14}, left: 'center', top: '6%'
+            }],
+            tooltip: {trigger: 'item'},
+            grid: {left: '10%', right: '10%', bottom: '15%'},
+            xAxis: {type: 'category', data: bpalldata.axisData},
+            yAxis: {type: 'value'},
+            series: [
+                {
+                    name: 'boxplot', type: 'boxplot', data: bpalldata.boxData,
+                    tooltip: {
+                        formatter: function (param) {
+                            return [
+                                'upper: ' + param.data[5],
+                                'Q3: ' + param.data[4],
+                                'median: ' + param.data[3],
+                                'Q1: ' + param.data[2],
+                                'lower: ' + param.data[1]
+                            ].join('<br/>');
+                        }
+                    }
+                }, {
+                    name: 'outlier', type: 'scatter', data: bpalldata.outliers, symbolSize: 5
+                }
+            ]
+        });
+
+        let pca_ores = {{ pca_result|safe }};
+        let pca3_ores = {{ pca_result3|safe }};
+        for (idx in pca_ores) {
+            if (pca_ores.hasOwnProperty(idx)) {
+                pca_ores[idx].push(idx)
+                if (pca3_ores.hasOwnProperty(idx)) {
+                    pca3_ores[idx].push(idx)
+                }
+            }
+        }
+
+        let pca_res = pca_ores;
+        let pca3d_res = pca3_ores;
+        let algo_ores = {{ algo|safe }};
+
+        Array.prototype.indexOf = function (val) {
+            for (let i = 0; i < this.length; i++) {
+                if (this[i] === val) return i;
+            }
+            return -1;
+        };
+        Array.prototype.remove = function (val) {
+            var index = this.indexOf(val);
+            if (index > -1) {
+                this.splice(index, 1);
+            }
+        };
+
+        let lof_res = [];
+        let lof3d_res = [];
+        let if_res = [];
+        let if3d_res = [];
+        for (let j in algo_ores['lof']) {
+            if (algo_ores['lof'].hasOwnProperty(j)) {
+                lof_res.push(pca_ores[j]);
+                lof3d_res.push(pca3_ores[j]);
+                pca_res.remove(pca_ores[j]);
+                pca3d_res.remove(pca3_ores[j]);
+            }
+        }
+        for (let j in algo_ores['if']) {
+            if (algo_ores['if'].hasOwnProperty(j)) {
+                if_res.push(pca_ores[j]);
+                if3d_res.push(pca3_ores[j]);
+                pca_res.remove(pca_ores[j]);
+                pca3d_res.remove(pca3_ores[j]);
+            }
+        }
+
+
+        let eudist_ores = {{ eudist|safe }};
+        let eudist_res = [];
+        let eudist3d_res = [];
+        for (let i in eudist_ores) {
+            if (eudist_ores.hasOwnProperty(i)) {
+                eudist_res.push(pca_ores[eudist_ores[i]['NO']]);
+                eudist3d_res.push(pca3_ores[eudist_ores[i]['NO']]);
+                pca_res.remove(pca_ores[eudist_ores[i]['NO']]);
+                pca3d_res.remove(pca3_ores[eudist_ores[i]['NO']]);
+            }
+        }
+
+
+        let scatterchart = echarts.init(document.getElementById('scatterchart'));
+        scatterchart.setOption({
+            xAxis: {},
+            yAxis: {},
+            legend: {data: ['LOF检验异常', 'IF检验异常', '异常的相似样本', '正常样本']},
+            tooltip: {
+                showDelay: 0,
+                formatter: function (param) {
+                    return '样本编号: ' + param.value[2];
+                }
+            },
+            series: [{
+                name: 'LOF检验异常',
+                data: lof_res,
+                type: "scatter",
+                symbol: 'triangle',
+                symbolSize: 13,
+                itemStyle: {normal: {color: 'green'}},
+            }, {
+                name: 'IF检验异常',
+                data: if_res,
+                type: "scatter",
+                symbol: 'triangle',
+                symbolSize: 13,
+                itemStyle: {normal: {color: 'orange'}},
+            }, {
+                name: '异常的相似样本',
+                data: eudist_res,
+                type: "scatter",
+                symbol: 'triangle',
+                symbolSize: 13,
+                itemStyle: {normal: {color: 'blue'}},
+            }, {
+                name: '正常样本',
+                data: pca_res,
+                type: 'scatter',
+                symbolSize: 10,
+            }]
+        });
+
+        let scatter3dchart = echarts.init(document.getElementById('scatter3dchart'));
+        scatter3dchart.setOption({
+            xAxis3D: {},
+            yAxis3D: {},
+            zAxis3D: {},
+            grid3D: {},
+            legend: {data: ['LOF检验异常', 'IF检验异常', '异常的相似样本', '正常样本']},
+            tooltip: {
+                showDelay: 0,
+                formatter: function (param) {
+                    return '样本编号: ' + param.value[2];
+                }
+            },
+            series: [{
+                name: 'LOF检验异常',
+                data: lof3d_res,
+                type: "scatter3D",
+                symbol: 'triangle',
+                symbolSize: 13,
+                itemStyle: {normal: {color: 'green'}},
+            }, {
+                name: 'IF检验异常',
+                data: if3d_res,
+                type: "scatter3D",
+                symbol: 'triangle',
+                symbolSize: 13,
+                itemStyle: {normal: {color: 'orange'}},
+            }, {
+                name: '异常的相似样本',
+                data: eudist3d_res,
+                type: "scatter3D",
+                symbol: 'triangle',
+                symbolSize: 13,
+                itemStyle: {normal: {color: 'blue'}},
+            }, {
+                name: '正常样本',
+                data: pca3d_res,
+                type: 'scatter3D',
+                symbolSize: 10,
+            }]
+        });
+    </script>
+
+    <script type="text/javascript ">
+        let pearsonList = {{ pearsonr|safe }};
+        let kendallList = {{ kendallr|safe }};
+        let spearmanList = {{ spearmanr|safe }};
+
+        // TODO: reuse the code
+        for (let idx = 0; idx < pearsonList.length; idx++) {
+            pearsonList[idx][2] = pearsonList[idx][2].toFixed(5)
+            let url = '<a href="{% url 'setverbose' dataname 12345 'pearson' %}">标记冗余属性</a>';
+            url = url.replace('12345', idx)
+            pearsonList[idx].push(url);
+        }
+        for (let idx = 0; idx < kendallList.length; idx++) {
+            kendallList[idx][2] = kendallList[idx][2].toFixed(5)
+            let url = '<a href="{% url 'setverbose' dataname 12345 'kendall' %}">标记冗余属性</a>';
+            url = url.replace('12345', idx)
+            kendallList[idx].push(url);
+        }
+        for (let idx = 0; idx < spearmanList.length; idx++) {
+            spearmanList[idx][2] = spearmanList[idx][2].toFixed(5)
+            let url = '<a href="{% url 'setverbose' dataname 12345 'spearman' %}">标记冗余属性</a>';
+            url = url.replace('12345', idx)
+            spearmanList[idx].push(url);
+        }
+
+        $('#pearson_corr_table').bootstrapTable({
+            data: pearsonList,
+            theadClasses: "thead-light",
+            pagination: true,
+            pageSize: '15',
+            editable: {type: "text"},
+            columns: [
+                {title: '属性1', width: 200},
+                {title: '属性2', width: 200},
+                {title: '相关系数', width: 400},
+                {title: '操作', width: 300}
+            ],
+            showColumns: true,
+            showToggle: true,
+            search: true,
+            showExport: true,
+            exportDataType: "all",
+            exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+        })
+        $('#kendall_corr_table').bootstrapTable({
+            data: kendallList,
+            theadClasses: "thead-light",
+            pagination: true,
+            pageSize: '15',
+            editable: {type: "text"},
+            columns: [
+                {title: '属性1', width: 200},
+                {title: '属性2', width: 200},
+                {title: '相关系数', width: 400},
+                {title: '操作', width: 300}
+            ],
+            showColumns: true,
+            showToggle: true,
+            search: true,
+            showExport: true,
+            exportDataType: "all",
+            exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+        })
+        $('#spearman_corr_table').bootstrapTable({
+            data: spearmanList,
+            theadClasses: "thead-light",
+            pagination: true,
+            pageSize: '15',
+            editable: {type: "text"},
+            columns: [
+                {title: '属性1', width: 200},
+                {title: '属性2', width: 200},
+                {title: '相关系数', width: 400},
+                {title: '操作', width: 300}
+            ],
+            showColumns: true,
+            showToggle: true,
+            search: true,
+            showExport: true,
+            exportDataType: "all",
+            exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+        })
+
+        let attr = [];
+        let attrcorr = [];
+        {% for i in pearsonr %}
+            if (!attr.includes('{{ i.0 }}')) {
+                attr.push('{{ i.0 }}')
+            }
+            if (!attr.includes('{{ i.1 }}')) {
+                attr.push('{{ i.1 }}')
+            }
+            attrcorr.push(['{{ i.0 }}', '{{ i.1 }}', {{ i.2 }}]);
+            attrcorr.push(['{{ i.1 }}', '{{ i.0 }}', {{ i.2 }}]);
+        {% endfor %}
+
+        let corrchart = echarts.init(document.getElementById('pearsoncorrchart'));
+        corrchart.setOption({
+            tooltip: {
+                position: 'top'
+            },
+            animation: false,
+            xAxis: {
+                type: 'category',
+                data: attr,
+                splitArea: {
+                    show: true
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: attr,
+                splitArea: {
+                    show: true
+                }
+            },
+            visualMap: {
+                min: 0.8,
+                max: 1,
+                orient: 'horizontal',
+                left: 'center',
+            },
+            series: [{
+                type: 'heatmap',
+                data: attrcorr,
+                label: {show: false},
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        })
+
+        let kattr = [];
+        let kattrcorr = [];
+        {% for i in kendallr %}
+            if (!kattr.includes('{{ i.0 }}')) {
+                kattr.push('{{ i.0 }}')
+            }
+            if (!kattr.includes('{{ i.1 }}')) {
+                kattr.push('{{ i.1 }}')
+            }
+            kattrcorr.push(['{{ i.0 }}', '{{ i.1 }}', {{ i.2 }}]);
+            kattrcorr.push(['{{ i.1 }}', '{{ i.0 }}', {{ i.2 }}]);
+        {% endfor %}
+
+        let kcorrchart = echarts.init(document.getElementById('kendallcorrchart'));
+        kcorrchart.setOption({
+            tooltip: {
+                position: 'top'
+            },
+            animation: false,
+            xAxis: {
+                type: 'category',
+                data: kattr,
+                splitArea: {
+                    show: true
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: kattr,
+                splitArea: {
+                    show: true
+                }
+            },
+            visualMap: {
+                min: 0.8,
+                max: 1,
+                orient: 'horizontal',
+                left: 'center',
+            },
+            series: [{
+                type: 'heatmap',
+                data: kattrcorr,
+                label: {show: false},
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        })
+
+        let sattr = [];
+        let sattrcorr = [];
+        {% for i in spearmanr %}
+            if (!sattr.includes('{{ i.0 }}')) {
+                sattr.push('{{ i.0 }}')
+            }
+            if (!sattr.includes('{{ i.1 }}')) {
+                sattr.push('{{ i.1 }}')
+            }
+            sattrcorr.push(['{{ i.0 }}', '{{ i.1 }}', {{ i.2 }}]);
+            sattrcorr.push(['{{ i.1 }}', '{{ i.0 }}', {{ i.2 }}]);
+        {% endfor %}
+
+        let scorrchart = echarts.init(document.getElementById('spearmancorrchart'));
+        scorrchart.setOption({
+            tooltip: {
+                position: 'top'
+            },
+            animation: false,
+            xAxis: {
+                type: 'category',
+                data: sattr,
+                splitArea: {
+                    show: true
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: sattr,
+                splitArea: {
+                    show: true
+                }
+            },
+            visualMap: {
+                min: 0.8,
+                max: 1,
+                orient: 'horizontal',
+                left: 'center',
+            },
+            series: [{
+                type: 'heatmap',
+                data: sattrcorr,
+                label: {show: false},
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        })
+    </script>
+{% endblock %}

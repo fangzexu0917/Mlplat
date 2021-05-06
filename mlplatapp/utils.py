@@ -47,13 +47,13 @@ class excelProcessor(object):
             self.df = pandas.DataFrame(filename)
         else:
             self.df = pandas.read_excel(filename)
-        self.df_matrix = self.df.values  # 将dataframe转为numpy.ndarray形式
-        self.df_rows, self.df_cols = self.df_matrix.shape  # 记录numpy.ndarray的行列数目
+        self.df_matrix = self.df.values  # 将dataframe转为numpy.ndarray形式,返回DataFrame的Numpy表示形式
+        self.df_rows, self.df_cols = self.df_matrix.shape  # 记录numpy.ndarray的行列数目,即返回一个表示DataFrame维数的元组
 
         self.col_start = 0  # 记录从数值形式的值从哪一列开始
-        # 最初考虑excel文件中不只包含特征数据值，还包括一些描述信息
-        # 预设表格的第一列是编号，第二列开始为字符串形式的描述信息，某一列开始为特征数据信息
-        for i in range(self.df_cols):
+        # 最初考虑excel文件中不只包含特征数据值，还包括一些描述信息(目前已取消)
+        # 预设表格的第一列是编号，第二列开始为字符串形式的描述信息，某一列开始为特征数据信息(目前已取消)
+        for i in range(self.df_cols):  # 该循环是为寻找到数据信息开始的列数
             # print(type(df_matrix[0][i]))
             if isinstance(self.df_matrix[0][i], float):
                 self.col_start = i
@@ -61,7 +61,7 @@ class excelProcessor(object):
 
         self.dfvalue = self.df.iloc[:, self.col_start:]  # 记录特征数据信息的dataframe
         self.valuearray = self.dfvalue.values  # 将特征数据信息转为numpy.ndarray形式
-        self.col_name = [column_name for column_name in self.df][self.col_start:]  # 记录特征名
+        self.col_name = [column_name for column_name in self.df][self.col_start:]  # 记录特征名,直接遍历获取列名
 
         self.dfattr = self.df.iloc[:, self.col_start:-1]  # 记录独立属性dataframe
         # 注：独立属性指的是可以根据这些属性预测某个属性的值，类似于自变量。相似地，决策属性类似于应变量

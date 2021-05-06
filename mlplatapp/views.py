@@ -2,7 +2,7 @@ from django.shortcuts import render, render_to_response, HttpResponse, HttpRespo
 from django.http import FileResponse, StreamingHttpResponse
 from django.utils import timezone
 from . import utils, models
-
+from mlplat import settings
 # Create your views here.
 import pandas as pd
 import os
@@ -173,7 +173,7 @@ def upload(request):
         fileinputname = fileinput.name  # get file name
         excelproc = utils.excelProcessor(fileinput)  # preprocess the file uploaded
 
-        descfileinput = request.FILES.get('input-excel-desc')  # 描述文件
+        # descfileinput = request.FILES.get('input-excel-numAndName')  # 描述文件(目前不需要，通过网页上传描述符)
 
         si = excelproc.col_start
         if excelproc.has_blank_cell():  # if any blank cell exists, interrupt the uploading
@@ -181,13 +181,37 @@ def upload(request):
 
         # 将表格数据存入数据库，返回表格数据在数据库中的集合名和文档_id
         # 数据库文档不允许字段名中存在'.','$'字符，须过滤
-        data_name_in_db, res = models.SavaData(fileinputname, excelproc.get_data(), False,
+        data_name_in_db, res = models.SavaData(fileinputname, excelproc.get_data(), True,
                                                host=HOST, port=PORT, database=DATABASE)
 
-        if descfileinput:
-            descexcelproc = utils.excelProcessor(descfileinput)
-            _, _ = models.SavaData(data_name_in_db, descexcelproc.get_data(), False, host=HOST, port=PORT,
-                                   database=SAMPLE_DESC_INFO_DATABASE)
+        # if descfileinput: #同上(目前不需要，通过网页上传描述符)
+        #     descexcelproc = utils.excelProcessor(descfileinput)
+        #     _, _ = models.SavaData(data_name_in_db, descexcelproc.get_data(), True, host=HOST, port=PORT,
+        #                            database=SAMPLE_DESC_INFO_DATABASE)
+
+        # 将网页上的样本描述信息和相关文祥分别存入数据库和服务器中
+        sample_num = request.POST.getlist('sampleNum')
+        sample_name = request.POST.getlist('sampleName')
+        sample_source = request.POST.getlist('sampleSource')
+        sample_desc = request.FILES.getlist('input-pdf')
+        sample_desc_list = []
+        for i in range(len(sample_num)):
+            temp_name = 'unknown'
+            if i < len(sample_desc):
+                temp_name = sample_desc[i].name
+                temp_filename = os.path.join(settings.MEDIA_ROOT, temp_name)
+                with open(temp_filename, 'wb') as tf:
+                    for file_data in sample_desc[i].chunks():
+                        tf.write(file_data)
+            sample_desc_list.append({
+                '编号': sample_num[i],
+                '名称': sample_name[i],
+                '来源': sample_source[i],
+                '相关文献': temp_name,
+            })
+        _, _ = models.SavaData(data_name_in_db, sample_desc_list, True, host=HOST, port=PORT,
+                               database=SAMPLE_DESC_INFO_DATABASE)
+
         # 数据质量检测结果存入数据库
         # 数据质量检测结果仅作为中间数据存储，数据库不保留这些信息
 
@@ -197,23 +221,24 @@ def upload(request):
         data_interest = request.POST.get('areaType')
         sample_num = request.POST.get('data_size_m')
         dim_num = request.POST.get('data_size_n')
+        data_type = request.POST.getlist('dataType')
         dim_range = request.POST.getlist('dimRange')
         dim_desc = request.POST.getlist('dimDesc')
         col_name = excelproc.col_name
         dim_desc_dict = []
 
-        firstElem = True
+        # firstElem = True
         for e in col_name:
-            if firstElem:
-                firstElem = False
-                continue
+            # if firstElem:
+            #     firstElem = False
+            #     continue
             dim_desc_dict.append({
                 '名称': e,
-                '符号': e,
-                '值域': dim_range[col_name.index(e) - 1],
-                '描述信息': dim_desc[col_name.index(e) - 1],
+                '数据类型': data_type[col_name.index(e)],
+                '取值范围': dim_range[col_name.index(e)],
+                '描述信息': dim_desc[col_name.index(e)],
             })
-        _, _ = models.SavaData(data_name_in_db, dim_desc_dict, False, host=HOST, port=PORT,
+        _, _ = models.SavaData(data_name_in_db, dim_desc_dict, True, host=HOST, port=PORT,
                                database=DESC_INFO_DATABASE)
 
         submitter = request.POST.get('submmitter')
@@ -282,6 +307,7 @@ def qualitycontrol(request, data_name):  # , stat_quality_name, algo_quality_nam
         spearman_corr = excelproc.get_corr_coef('spearman')
         attr_name = excelproc.col_name[:-1]
         pearson_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in pearson_corr]  # 将属性下标转为属性名
+        print(pearson_corr)
         pearson_corr.sort(key=lambda x: x[2], reverse=True)
         kendall_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in kendall_corr]  # 将属性下标转为属性名
         kendall_corr.sort(key=lambda x: x[2], reverse=True)
@@ -334,6 +360,100 @@ def qualitycontrol(request, data_name):  # , stat_quality_name, algo_quality_nam
             'col_name': excelproc.col_name,
             'pca_result': pca_result,
             'pca_result3': pca_result_3,
+        })
+
+
+def quality_control(request, data_name):
+    if request.method == 'POST':
+        pass
+    if request.method == 'GET':
+        return render(request, 'quality_control_total.html', {
+            'dataname': data_name,
+        })
+
+
+def quality_control_traceability(request, data_name):
+    if request.method == 'POST':
+        pass
+    if request.method == 'GET':
+        return render(request, 'quality_control_traceability.html', {
+            'dataname': data_name
+        })
+
+
+def quality_control_precision(request, data_name):
+    if request.method == 'POST':
+        pass
+    if request.method == 'GET':
+        data = models.ReadData(data_name, host=HOST, port=PORT, database=DATABASE)
+
+        excelproc = utils.excelProcessor(data)
+        pearson_corr = excelproc.get_corr_coef('pearson')
+        kendall_corr = excelproc.get_corr_coef('kendall')
+        spearman_corr = excelproc.get_corr_coef('spearman')
+        attr_name = excelproc.col_name[:-1]
+        pearson_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in pearson_corr]  # 将属性下标转为属性名
+        print(pearson_corr)
+        pearson_corr.sort(key=lambda x: x[2], reverse=True)
+        kendall_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in kendall_corr]  # 将属性下标转为属性名
+        kendall_corr.sort(key=lambda x: x[2], reverse=True)
+        spearman_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in spearman_corr]  # 将属性下标转为属性名
+        spearman_corr.sort(key=lambda x: x[2], reverse=True)
+
+        stat_data_quality = []  # 对表格数据进行质量检测，得到基本统计信息
+        for key, val in excelproc.statistics_data_check().to_dict().items():
+            stat_data_quality.append({key.replace('.', '').replace('$', ''): val})
+
+        stat_data_quality_name, res = models.SavaData('stat_data_quality_' + data_name, stat_data_quality, True,
+                                                      host=HOST, port=PORT, database=DATABASE)
+
+        algo_data_quality = []  # 检测表格数据质量，得到算法检测结果
+        for key, val in excelproc.algorithm_data_check().items():
+            algo_data_quality.append({key: val})
+        algo_data_quality_name, res = models.SavaData('algo_data_quality_' + data_name, algo_data_quality, True,
+                                                      host=HOST, port=PORT, database=DATABASE)
+
+        eudist_data_quality = []  # 检测表格数据质量，得到算法检测结果
+        for key, val in excelproc.eudist_data_check().items():
+            eudist_data_quality.append({'NO': key, 'count': val})
+        eudist_data_quality_name, res = models.SavaData('eudist_data_quality_' + data_name, eudist_data_quality, True,
+                                                        host=HOST, port=PORT, database=DATABASE)
+
+        stat = models.ReadData(stat_data_quality_name, host=HOST, port=PORT, database=DATABASE)
+        algo = models.ReadData(algo_data_quality_name, host=HOST, port=PORT, database=DATABASE)
+        eudist = models.ReadData(eudist_data_quality_name, host=HOST, port=PORT, database=DATABASE)
+
+        stat_dict = {}
+        for i in stat:
+            stat_dict.update(i)
+        algo_dict = {}
+        for i in algo:
+            algo_dict.update(i)
+
+        pca_result = excelproc.get_primary_components(2)
+        pca_result_3 = excelproc.get_primary_components(3)
+        return render(request, 'quality_control_precision.html', {
+            'dataname': data_name,
+            'data': data,
+            'stat': json.dumps(stat_dict),
+            'algo': algo_dict,
+            'eudist': json.dumps(eudist),
+            'pearsonr': pearson_corr,
+            'kendallr': kendall_corr,
+            'spearmanr': spearman_corr,
+            'col_start': si,
+            'col_name': excelproc.col_name,
+            'pca_result': pca_result,
+            'pca_result3': pca_result_3,
+        })
+
+
+def quality_control_exploratory(request, data_name):
+    if request.method == 'POST':
+        pass
+    if request.method == 'GET':
+        return render(request, 'testhtml.html', {
+            'dataname': data_name
         })
 
 

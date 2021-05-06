@@ -16,11 +16,11 @@ def SavaData(dataName, dictList, overwrite, host, port, database):
     :param database:
     :return:
     """
-    client = pymongo.MongoClient(host=host, port=port)
-    db = client.get_database(name=database)
+    client = pymongo.MongoClient(host=host, port=port)  # 用于连接到MongoDB的工具
+    db = client.get_database(name=database)  # 获取Database具有给定名称和选项的
 
     n = 0
-    if dataName in db.list_collection_names():
+    if dataName in db.list_collection_names():  # 获取此数据库中所有集合名称的列表，以下操作对重名文件数据进行修改
         if not overwrite:
             n += 1
             dataName = dataName[:dataName.rfind('.')] + str(n) + dataName[dataName.rfind('.'):]
@@ -28,11 +28,11 @@ def SavaData(dataName, dictList, overwrite, host, port, database):
                 n += 1
                 dataName = dataName[:dataName.rfind('.') - 1] + str(n) + dataName[dataName.rfind('.'):]
         else:
-            db.drop_collection(dataName)
+            db.drop_collection(dataName)  # 删除收藏集
 
-    coll = db.create_collection(name=dataName)
+    coll = db.create_collection(name=dataName)  # 在此数据库中创建一个新的集合
 
-    return dataName, coll.insert_many(dictList)
+    return dataName, coll.insert_many(dictList)  # 插入可迭代的文档
 
 
 def UpdateData(number, newData, dataName, host, port, database):
@@ -49,8 +49,8 @@ def UpdateData(number, newData, dataName, host, port, database):
     client = pymongo.MongoClient(host=host, port=port)
     db = client.get_database(name=database)
 
-    coll = db.get_collection(dataName)
-    return coll.find_one_and_update({'NO': number}, {'$set': newData})
+    coll = db.get_collection(dataName)  # 获取Collection具有给定名称和选项的
+    return coll.find_one_and_update({'NO': number}, {'$set': newData})  # 查找单个文档并进行更新，返回原始文档或更新后的文档，$操作符是MongoDB中的原子操作
 
 
 def ReadData(dataName, host, port, database):
@@ -66,7 +66,7 @@ def ReadData(dataName, host, port, database):
     db = client.get_database(name=database)
 
     coll = db.get_collection(name=dataName)
-    doc_list = [it for it in coll.find(projection={"_id": False})]
+    doc_list = [it for it in coll.find(projection={"_id": False})]  # projection，应在结果集中返回的字段名称列表或指定要包括或排除的字段的dict
     # doc_json = json.dumps(doc_list)
     return doc_list
 
@@ -111,7 +111,7 @@ def RmDoc(doc_filter, collection, host, port, database):
     client = pymongo.MongoClient(host=host, port=port)
     db = client.get_database(name=database)
     coll = db.get_collection(collection)
-    return coll.remove(doc_filter)
+    return coll.remove(doc_filter)  # 从此集合中删除文档
 
 
 class Data(models.Model):

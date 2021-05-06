@@ -43,7 +43,7 @@
                 showDataButton = document.getElementById('showDataButton');
                 beginFSButton = document.getElementById('beginFSButton');
                 beginMLButton = document.getElementById('beginMLButton');
-                if (idfy === 'qualitycontrol') {
+                if (idfy === 'qualitycontroltotal') {
                     showDataButton.disabled = true;
                     showDataButton.className += ' btn btn-link';
                     beginFSButton.disabled = false;
@@ -346,13 +346,12 @@
                                                 <input type="file" class="file validate[required]"
                                                        id="input-excel-desc"
                                                        name="input-excel-desc"
-                                                       placeholder="选上传文件">
+                                                       placeholder="选上传文件" disabled>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <label class="col-sm-2  control-label"
                                                    style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据文件上传</label>
-                                            <label style="text-align: right; display: inline-block; height:35px; line-height: 35px;margin: -4px;padding: -4px">*</label>
                                             <div class="formControls col-md-8">
                                                 <input type="file" class="file validate[required]"
                                                        id="input-excel"
@@ -387,9 +386,40 @@
                                                         m = objData.length;
                                                         let discDiv = $('#descDiv');
                                                         let simpleDiv = $('#sampleDiv');
-                                                        //let strTemp = "<link rel=\"stylesheet\" href=\"../static/kartik-v-bootstrap-fileinput/css/fileinput.css\"><script type=\"text/javascript\" src=\"../static/kartik-v-bootstrap-fileinput/js/fileinput.js\"><\/script><script type=\"text/javascript\" src=\"../static/kartik-v-bootstrap-fileinput/js/locales/zh.js\"><\/script>"
                                                         discDiv.empty();
                                                         simpleDiv.empty();
+                                                        for (let i = 0; i < objData.length; i++) {
+                                                            let numTemp = i + 1;
+                                                            simpleDiv.append(
+                                                                "<div class='row'>" +
+                                                                "<div class='col-md-1'></div>" +
+                                                                "<div class='form-group col-md-2'>" +
+                                                                "<input type='text' id='sampleNum' name='sampleNum'" +
+                                                                "class='num form-control validate[required] validate[maxSize[255]]' " +
+                                                                "value='" + numTemp + "'>" +
+                                                                "</div>" +
+                                                                "<div class='form-group col-md-2'>" +
+                                                                "<input type='text' id='sampleName' name='sampleName'" +
+                                                                "class='form-control validate[required] validate[maxSize[255]]' " +
+                                                                "value='unknown'>" +
+                                                                "</div>" +
+                                                                "<div class='form-group col-md-2'>" +
+                                                                "<span class='select-box radius mt-20' " +
+                                                                "style='margin: 0'>" +
+                                                                "<select class= 'form-control' id='sampleSource' name='sampleSource'>" +
+                                                                "<option selected value='unknown'>来源</option>" +
+                                                                "<option>数据库</option>" +
+                                                                "<option>文献</option>" +
+                                                                "<option>生产</option>" +
+                                                                "</select>" +
+                                                                "</span>" +
+                                                                "</div>" +
+                                                                "<div class='form-group col-md'><input type='file' class='file input-pdf' " +
+                                                                "name='input-pdf' id='input-pdf 'onchange=''>" +
+                                                                "</div>" +
+                                                                "<script>$('.input-pdf').fileinput({showPreview: false,showRemove: false,browseOnZoneClick: true,allowedFileExtensions: ['pdf'],language: 'zh',type: 'post',theme: 'explorer',browseClass: 'btn btn-info',showUpload: false,browseLabel: '选择文件',msgPlaceholder: '仅支持.pdf格式文件',initialCaption:''})<\/script>" +
+                                                                "</div>")
+                                                        }
                                                         for (let colname in objData[0]) {
                                                             if (objData[0].hasOwnProperty(colname)) {
                                                                 colnum += 1;
@@ -404,7 +434,7 @@
                                                                     "<div class='form-group col-md-2'>" +
                                                                     "<span class='select-box radius mt-20' " +
                                                                     "style='margin: 0'>" +
-                                                                    "<select class= 'form-control '>" +
+                                                                    "<select class= 'form-control ' name='dataType'>" +
                                                                     "<option selected value='unknown'>数据类型</option>" +
                                                                     "<option class='int' value= 'Int'>Int</option>" +
                                                                     "<option class='float' value= 'Float'>Float</option>" +
@@ -422,37 +452,6 @@
                                                                     "placeholder='描述信息' >" +
                                                                     "</div>" +
                                                                     "</div>");
-
-                                                                simpleDiv.append(
-                                                                    //strTemp +
-                                                                    "<div class='row'>" +
-                                                                    "<div class='col-md-1'></div>" +
-                                                                    "<div class='form-group col-md-2'>" +
-                                                                    "<input type='text' id='sampleNum'" +
-                                                                    "class='num form-control validate[required] validate[maxSize[255]]' " +
-                                                                    "value='" + colnum + "'>" +
-                                                                    "</div>" +
-                                                                    "<div class='form-group col-md-2'>" +
-                                                                    "<input type='text' id='sampleName'" +
-                                                                    "class='form-control validate[required] validate[maxSize[255]]' " +
-                                                                    "value='" + colname + "'>" +
-                                                                    "</div>" +
-                                                                    "<div class='form-group col-md-2'>" +
-                                                                    "<span class='select-box radius mt-20' " +
-                                                                    "style='margin: 0'>" +
-                                                                    "<select class= 'form-control id='source'>" +
-                                                                    "<option selected value='unknown'>来源</option>" +
-                                                                    "<option>数据库</option>" +
-                                                                    "<option>文献</option>" +
-                                                                    "<option>生产</option>" +
-                                                                    "</select>" +
-                                                                    "</span>" +
-                                                                    "</div>" +
-                                                                    "<div class='form-group col-md'><input type='file' class='file input-pdf' " +
-                                                                    "name='input-pdf' id='input-pdf" + colnum + "'onchange=''>" +
-                                                                    "</div>" +
-                                                                    "<script>$('.input-pdf').fileinput({showPreview: false,showRemove: false,browseOnZoneClick: true,allowedFileExtensions: ['pdf'],language: 'zh',type: 'post',theme: 'explorer',browseClass: 'btn btn-info',showUpload: false,browseLabel: '选择文件',msgPlaceholder: '仅支持.pdf格式文件',initialCaption:''})<\/script>" +
-                                                                    "</div>")
                                                             }
                                                         }
                                                         document.getElementById('data_size_n').value = colnum;
@@ -575,7 +574,7 @@
                                                  style="display: inline-block; height:35px; line-height: 35px;">
                                             <span class="select-box radius mt-20"
                                                   style="margin: 0">
-                                                 <select class="form-control" id="source">
+                                                 <select class="form-control" id="sampleSource">
                                                      <option selected value='unknown'>来源</option>
                                                      <option>数据库</option>
                                                      <option>文献</option>
@@ -584,8 +583,8 @@
                                             </span>
                                                 <script>
                                                     $(function () {
-                                                        $('#source').change(function () {
-                                                            $('#sampleDiv select').val($('#source option:selected').val());
+                                                        $('#sampleSource').change(function () {
+                                                            $('#sampleDiv select').val($('#sampleSource option:selected').val());
                                                         });
                                                     });
                                                 </script>
@@ -734,8 +733,8 @@
                                                    style="margin: 0">
                                                  <select class="form-control" id="titleBox">
                                                     <option selected value='unknown'>数据类型</option>
-                                                    <option class="int" value="int1">int</option>
-                                                    <option class="float" value="float1">float</option>
+                                                    <option class="int" value="Int">Int</option>
+                                                    <option class="float" value="Float">Float</option>
                                                  </select>
                                              </span>
                                                 <script>

@@ -14,7 +14,14 @@ urlpatterns = [
 
     path('download/<str:name>', views.download, name='download'),  # 下载逻辑
 
-    path('qualitycontrol/<str:data_name>', views.qualitycontrol, name='qualitycontrol'),  # 数据质量检测逻辑
+    # path('qualitycontrol/<str:data_name>', views.qualitycontrol, name='qualitycontrol'),  # 数据质量检测逻辑
+    path('qualitycontrol/<str:data_name>', views.quality_control, name='qualitycontrol'),
+    path('qualitycontrol/traceability/<str:data_name>', views.quality_control_traceability,
+         name='quality_control_traceability'),
+    path('qualitycontrol/precision/<str:data_name>', views.quality_control_precision,
+         name='quality_control_precision'),
+    path('qualitycontrol/exploratory/<str:data_name>', views.quality_control_exploratory,
+         name='quality_control_exploratory'),
 
     path('domainknowledgeembedding/<str:data_name>', views.chooseDomainKnowledgeEmbeddingMethod,
          name='domainknowledgeembedding'),  # 选择领域知识嵌入方式
