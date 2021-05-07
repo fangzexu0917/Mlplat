@@ -277,22 +277,27 @@
                     <div id="collapseFive" class="collapse" aria-labelledby="headingFive"
                          data-parent="#accordionExampleOne">
                         <div class="formControls">
-                            <ul class="nav nav-pills nav-justified">
+                            <ul class="nav nav-pills nav-justified" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link  active" data-toggle="pill" href="#contentOne" id="titleOne">数据集合基本信息</a>
+                                    <a class="nav-link  active disabled" data-toggle="pill" href="#contentOne"
+                                       id="titleOne"
+                                       role="tab" aria-controls="contentOne" aria-selected="true">数据集合基本信息</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="pill" href="#contentTwo" id="titleTwo">样本基本信息</a>
+                                    <a class="nav-link disabled" data-toggle="pill" href="#contentTwo" id="titleTwo"
+                                       role="tab"
+                                       aria-controls="contentTwo" aria-selected="false">样本基本信息</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="pill" href="#contentThree"
-                                       id="titleThree">描述符基本信息</a>
+                                    <a class="nav-link disabled" data-toggle="pill" href="#contentThree"
+                                       id="titleThree" role="tab" aria-controls="contentThree" aria-selected="false">描述符基本信息</a>
                                 </li>
                             </ul>
 
                             <!-- Tab panes -->
                             <div class="tab-content pb-3 pt-3">
-                                <div class="tab-pane container active" id="contentOne">
+                                <div class="tab-pane container fade show active" id="contentOne" role="tabpanel"
+                                     aria-labelledby="contentOne-tab">
                                     <div class="form-group">
                                         <div class="row">
                                             <label for="domainType" class="col-sm-2  control-label"
@@ -538,7 +543,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane container" id="contentTwo">
+                                <div class="tab-pane container fade" id="contentTwo" role="tabpanel"
+                                     aria-labelledby="contentTwo-tab">
                                     <div class="form-group">
                                         <div class="row">
                                             <div class="col-md-1"></div>
@@ -721,7 +727,8 @@
                                         </script>
                                     </div>
                                 </div>
-                                <div class="tab-pane container" id="contentThree">
+                                <div class="tab-pane container fade" id="contentThree" role="tabpanel"
+                                     aria-labelledby="contentThree-tab">
                                     <div class="form-group">
                                         <div class="row">
                                             <div class="col-md-1"></div>

@@ -61,15 +61,55 @@
             </button>
         </div>
 
-        <div class="row">
-            <div class="col-sm-12" style="overflow:auto;">
-                <table id="raw_table"
-                       class="table table-sm table-hover table-responsive"></table>
+        <ul class="nav nav-tabs" id="data_tabs" role="tablist" style="padding-top: 2%; margin-bottom: 2%">
+            <li class="nav-item">
+                <a class="nav-link active" href="#raw_data" data-toggle="tab">原始数据信息</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#sample_data" data-toggle="tab">样本基本信息</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#dim_data" data-toggle="tab">维度描述信息</a>
+            </li>
+
+        </ul>
+
+        <div class="tab-content" id="data_tab_content">
+            <div class="tab-pane fade show active" id="raw_data" role="tabpanel" aria-labelledby="raw_data_tab">
+                <div class="row">
+                    <div class="col-sm-12" style="overflow:auto;">
+                        <table id="raw_table"
+                               class="table table-sm table-hover table-responsive"></table>
+                    </div>
+                </div>
+                <div class="row">
+                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上表内容为原始数据</h6>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="sample_data" role="tabpanel" aria-labelledby="sample_data_tab">
+                <div class="row">
+                    <div class="col-sm-12" style="overflow:auto;">
+                        <table id="sample_table"
+                               class="table table-sm table-hover table-responsive"></table>
+                    </div>
+                </div>
+                <div class="row">
+                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上表内容为样本信息</h6>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="dim_data" role="tabpanel" aria-labelledby="dim_data_tab">
+                <div class="row">
+                    <div class="col-sm-12" style="overflow:auto;">
+                        <table id="dim_table"
+                               class="table table-sm table-hover table-responsive"></table>
+                    </div>
+                </div>
+                <div class="row">
+                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上表内容为维度信息</h6>
+                </div>
             </div>
         </div>
-        <div class="row">
-            <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上表内容为原始数据</h6>
-        </div>
+
         <div class="formControls  col-sm-2" style="padding-left: 15px">
             <button type="button" class="btn btn-success "
                     onclick='window.location.href="{% url 'qualitycontrol' dataname %}"'
@@ -110,14 +150,17 @@
         }
 
         let sampleList = [];
+        let sampleDataList = [];
+        let dimDataList = [];
         $.ajax({
             url: '/data/' + '{{ dataname }}',
             type: 'get',
             async: true,
             success: function (res) {
-                sampleList = eval(res);
-                let sampleColumns = [];
 
+                let result = res.split('\n');
+                sampleList = eval(result[0]);
+                let sampleColumns = [];
                 for (let key in sampleList[0]) {
                     if (sampleList[0].hasOwnProperty(key)) {
                         sampleColumns.push({
@@ -136,13 +179,80 @@
                         });
                     }
                 }
-
                 $('#raw_table').bootstrapTable({
                     data: sampleList,
                     theadClasses: "thead-light",
                     pagination: true,
                     pageSize: '15',
                     columns: sampleColumns,
+                    showColumns: true,
+                    showToggle: true,
+                    search: true,
+                    showExport: true,
+                    exportDataType: "all",
+                    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+                });
+                sampleDataList = eval(result[1]);
+                $('#sample_table').bootstrapTable({
+                    data: sampleDataList,
+                    theadClasses: "thead-light",
+                    pagination: true,
+                    pageSize: '15',
+                    columns: [{
+                        title: $('<div/>').text('编号').html(),
+                        field: '编号',
+                        widthUnit: '%',
+                        width: 15,
+                    }, {
+                        title: $('<div/>').text('名称').html(),
+                        field: '名称',
+                        widthUnit: '%',
+                        width: 25,
+                    }, {
+                        title: $('<div/>').text('来源').html(),
+                        field: '来源',
+                        widthUnit: '%',
+                        width: 15,
+                    }, {
+                        title: $('<div/>').text('相关文献').html(),
+                        field: '相关文献',
+                        widthUnit: '%',
+                        width: 45,
+                    }],
+                    showColumns: true,
+                    showToggle: true,
+                    search: true,
+                    showExport: true,
+                    exportDataType: "all",
+                    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+                });
+                dimDataList = eval(result[2]);
+                $('#dim_table').bootstrapTable({
+                    data: dimDataList,
+                    theadClasses: "thead-light",
+                    pagination: true,
+                    pageSize: '15',
+                    columns: [{
+                        title: $('<div/>').text('名称').html(),
+                        field: '名称',
+                        widthUnit: '%',
+                        width: 15,
+                    }, {
+                        title: $('<div/>').text('数据类型').html(),
+                        field: '数据类型',
+                        widthUnit: '%',
+                        width: 15,
+                    }, {
+                        title: $('<div/>').text('取值范围').html(),
+                        field: '取值范围',
+                        widthUnit: '%',
+                        width: 20,
+                    }, {
+                        title: $('<div/>').text('描述信息').html(),
+                        field: '描述信息',
+                        widthUnit: '%',
+                        width: 50,
+                    }],
                     showColumns: true,
                     showToggle: true,
                     search: true,

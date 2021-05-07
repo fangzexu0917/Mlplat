@@ -150,7 +150,13 @@ def data(request, name):
     if request.method == 'GET':
         data = models.ReadData(name, host=HOST, port=PORT, database=DATABASE)
         # return HttpResponse(data)
-        return render(request, 'data_detail.html', {'data': data})
+        sample_data = models.ReadData(name, host=HOST, port=PORT, database=SAMPLE_DESC_INFO_DATABASE)
+        dim_data = models.ReadData(name, host=HOST, port=PORT, database=DESC_INFO_DATABASE)
+        return render(request, 'data_detail.html', {
+            'data': data,
+            'sampleData': sample_data,
+            'dimData': dim_data,
+        })
 
 
 def info(request, name):
