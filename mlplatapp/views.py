@@ -313,7 +313,6 @@ def qualitycontrol(request, data_name):  # , stat_quality_name, algo_quality_nam
         spearman_corr = excelproc.get_corr_coef('spearman')
         attr_name = excelproc.col_name[:-1]
         pearson_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in pearson_corr]  # 将属性下标转为属性名
-        print(pearson_corr)
         pearson_corr.sort(key=lambda x: x[2], reverse=True)
         kendall_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in kendall_corr]  # 将属性下标转为属性名
         kendall_corr.sort(key=lambda x: x[2], reverse=True)
@@ -392,14 +391,12 @@ def quality_control_precision(request, data_name):
         pass
     if request.method == 'GET':
         data = models.ReadData(data_name, host=HOST, port=PORT, database=DATABASE)
-
         excelproc = utils.excelProcessor(data)
         pearson_corr = excelproc.get_corr_coef('pearson')
         kendall_corr = excelproc.get_corr_coef('kendall')
         spearman_corr = excelproc.get_corr_coef('spearman')
         attr_name = excelproc.col_name[:-1]
         pearson_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in pearson_corr]  # 将属性下标转为属性名
-        print(pearson_corr)
         pearson_corr.sort(key=lambda x: x[2], reverse=True)
         kendall_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in kendall_corr]  # 将属性下标转为属性名
         kendall_corr.sort(key=lambda x: x[2], reverse=True)

@@ -344,16 +344,7 @@
                                                        placeholder="数据摘要">
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <label class="col-sm-2  control-label"
-                                                   style="text-align: right; display: inline-block; height:35px; line-height: 35px">描述文件上传</label>
-                                            <div class="formControls col-md-8">
-                                                <input type="file" class="file validate[required]"
-                                                       id="input-excel-desc"
-                                                       name="input-excel-desc"
-                                                       placeholder="选上传文件" disabled>
-                                            </div>
-                                        </div>
+
                                         <div class="row">
                                             <label class="col-sm-2  control-label"
                                                    style="text-align: right; display: inline-block; height:35px; line-height: 35px">数据文件上传</label>
@@ -647,7 +638,7 @@
                                                 <input type="file" class="file validate[required]"
                                                        id="input-zip"
                                                        name="input-zip"
-                                                       onchange="importZip(this)">
+                                                       onchange="importZip(this)" disabled>
                                             </div>
                                             <script>
                                                 function importZip(obj) {

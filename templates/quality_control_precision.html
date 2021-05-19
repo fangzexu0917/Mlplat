@@ -173,61 +173,24 @@
                         <div class="tab-content" id="chart_type_content">
                             <div class="tab-pane fade show active" id="boxplot" role="tabpanel"
                                  aria-labelledby="boxplot_tab">
-                                <ul class="nav flex-column" id="bpchart_tabs" role="tablist">
-                                    <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
-                                           role="button"
-                                           aria-haspopup="true" aria-expanded="false">
-                                            下拉查看各属性分布箱型图
-                                        </a>
-                                        <div class="dropdown-menu" style="height: 200px; overflow-y: scroll">
-                                            {% with data|first as dm %}
-                                                {% for i in dm %}
-                                                    <a class="nav-link dropdown-item"
-                                                       id="bpchart_tab{{ forloop.counter0 }}"
-                                                       data-toggle="tab"
-                                                       role="tab" href="#bpchart{{ forloop.counter0 }}"
-                                                       aria-selected="true">{{ i }}</a>
-                                                {% endfor %}
-                                            {% endwith %}
-                                        </div>
-                                    </li>
-                                </ul>
-                                <div class="tab-content" id="bpchart_content">
-                                    {% with data|first as dm %}
-                                        {% for i in dm %}
-                                            {% if forloop.counter0 == col_start %}
-                                                <div class="tab-pane fade show active"
-                                                     id="bpchart{{ forloop.counter0 }}"
-                                                     role="tabpanel"
-                                                     aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
-                                                    <div id="bpdata_chart{{ forloop.counter0 }}"
-                                                         style="width: 800px; height: 400px"></div>
-                                                    <div class="row">
-                                                        <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
-                                                    </div>
-                                                </div>
-                                            {% else %}
-                                                {% if forloop.counter0 > col_start %}
-                                                    <div class="tab-pane fade" id="bpchart{{ forloop.counter0 }}"
-                                                         role="tabpanel"
-                                                         aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
-                                                        <div id="bpdata_chart{{ forloop.counter0 }}"
-                                                             style="width: 600px; height: 400px"></div>
-                                                        <div class="row">
-                                                            <h6>
-                                                                注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
-                                                        </div>
-                                                    </div>
-                                                {% endif %}
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endwith %}
-                                </div>
                                 <div id="bpallchart" style="width: 800px; height: 400px"></div>
                                 <div class="row">
                                     <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上图中数据为最大最小归一化后的值，仅供参考</h6>
                                 </div>
+                                {% with data|first as dm %}
+                                    {% for i in dm %}
+                                        <div class="tab-pane fade show active"
+                                             id="bpchart{{ forloop.counter0 }}"
+                                             role="tabpanel"
+                                             aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
+                                            <div id="bpdata_chart{{ forloop.counter0 }}"
+                                                 style="width: 800px; height: 400px"></div>
+                                            <div class="row">
+                                                <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% endwith %}
                             </div>
                             <div class="tab-pane fade" id="boxplotall" role="tabpanel" aria-labelledby="boxplotall_tab">
                                 <ul class="nav flex-column" id="ck_quality_tabs" role="tablist">
@@ -255,7 +218,7 @@
 
                                 </div>
                                 <div class="row">
-                                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;黄色背景的单元格表示该值超出本列盒图统计值的上下限</h6>
+                                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;黄色背景的单元格表示该值超出本列盒图统计值的上下限,红色背景的单元格表示该值超出描述符信息中的取值范围，蓝色背景表示该值不符合描述符信息中的数据类型。</h6>
                                 </div>
                             </div>
                         </div>
@@ -397,6 +360,38 @@
             return new RegExp("^(-?\\d+)(\\.\\d+)?$").test(arg)
         }
 
+        //dealRange函数用来处理描述符信息中的取值范围，返回数组所表示的含义为，是否取的到左区间值，是否取的到右区间值，左区间值，右区间值
+        function dealRange(range) {
+            let res = [];
+            let ran = range.trim();
+            if (ran === "") {
+                return res;
+            }
+            if (ran[0] === '[') {
+                res.push(true);
+            } else {
+                res.push(false);
+            }
+            if (ran[ran.length - 1] === ']') {
+                res.push(true);
+            } else {
+                res.push(false);
+            }
+            let ranran = ran.split(',');
+            if (ranran[0].indexOf("-ꚙ") >= 0) {
+                res.push(-Infinity);
+            } else {
+                res.push(Number(ranran[0].slice(1)));
+            }
+            if (ranran[1].indexOf("+ꚙ") >= 0) {
+                res.push(Infinity);
+            } else {
+                res.push(Number(ranran[1].slice(0, ranran[1].length - 1)));
+            }
+            return res;
+
+        }
+
         function stat_name_mapper(fn) {
             let temp = {};
             temp["count"] = "样本数";
@@ -422,7 +417,10 @@
             type: 'get',
             async: true,
             success: function (res) {
-                sampleList = eval(res);
+                let result = res.split('\n');
+                sampleList = eval(result[0]);
+                //console.log(sampleList);
+                //console.log(eval(result[2]));
                 let sampleColumns = [];
 
                 for (let key in sampleList[0]) {
@@ -466,7 +464,18 @@
                     }
                 }
                 let check_title = [];
+                let check_title2 = [];
                 check_title.push({
+                    title: '操作',
+                    formatter: function (value, row, index) {
+                        let idx = index;
+                        let url = "{% url 'edit' dataname 12345 %}";  // django 模板语言不支持使用JS变量，故用12345作占位符再替换
+                        url = url.replace('12345', idx);
+                        let s = '<a href="' + url + '">修改</a>';
+                        return [s].join("")
+                    }
+                });
+                check_title2.push({
                     title: '操作',
                     formatter: function (value, row, index) {
                         let idx = index;
@@ -487,15 +496,20 @@
                     }
                 }
                 let idx = 1;
+                let samdesc = eval(result[2]);
                 for (let i in sampleList[0]) {
                     if (sampleList[0].hasOwnProperty(i)) {
                         if (typeof (sampleList[0][i]) == 'number') {
+                            let samdesctemp = samdesc.filter(x => x.名称 === i);
+                            //console.log(samdesctemp[0].取值范围);
                             check_title[idx] = {
                                 field: i,
                                 title: $('<div/>').text(i).html(),
+                                align: "center",
+                                halign: "left",
                                 formatter: function (value) {
                                     if (!isInteger(value)) {
-                                        return value.toFixed(5);
+                                        return value.toFixed(2);
                                     }
                                     return value;
                                 },
@@ -512,6 +526,46 @@
                                 },
 
                             };
+                            check_title2[idx] = {
+                                field: i,
+                                title: $('<div/>').text(i).html(),
+                                align: "center",
+                                halign: "left",
+                                formatter: function (value) {
+                                    if (!isInteger(value)) {
+                                        return value.toFixed(2);
+                                    }
+                                    return value;
+                                },
+                                cellStyle: function (value, row, index, field) {
+                                    //if (value === '' || undefined) {
+                                    //return {css: {"background-color": 'red'}};
+                                    //}
+                                    if (isInteger(value) && samdesctemp[0].数据类型 === "Float" && value != 0 || isFloat(value) && samdesctemp[0].数据类型 === "Int" && value != 0) {
+                                        return {css: {"background-color": 'blue'}};
+                                    }
+                                    let resl = dealRange(samdesctemp[0].取值范围)
+                                    if (resl != null) {
+                                        if (resl[0] && Number(value) < resl[2]) {
+                                            return {css: {"background": 'red'}};
+                                        } else if (!resl[0] && Number(value) <= resl[2]) {
+                                            return {css: {"background": 'red'}};
+                                        }
+                                        if (resl[1] && Number(value) > resl[3]) {
+                                            return {css: {"background": 'red'}};
+                                        } else if (!resl[1] && Number(value) >= resl[3]) {
+                                            return {css: {"background": 'red'}};
+                                        }
+                                    }
+                                    if ((Number(value) < Number(lower[field]) || Number(value) > Number(upper[field]))) {
+                                        return {css: {"background-color": 'yellow'}};
+                                        //                            } else if (suspected.includes(index) && field === 'NO') {
+                                        //                                return {css: {"background-color": 'yellow'}};
+                                    }
+                                    return {}
+                                },
+
+                            };
                             idx++;
                         }
                     }
@@ -522,7 +576,7 @@
                     theadClasses: "thead-light",
                     pagination: true,
                     pageSize: '15',
-                    columns: check_title,
+                    columns: check_title2,
                     showColumns: true,
                     showToggle: true,
                     search: true,
@@ -647,7 +701,8 @@
             type: 'get',
             async: true,
             success: function (res) {
-                statList = eval(res);
+                let result = res.split('\n');
+                statList = eval(result[0]);
                 let statColumns = [];
 
                 statColumns.push({
@@ -688,6 +743,8 @@
                             statColumns.push({
                                 title: $('<div/>').text(key).html(),
                                 field: key,
+                                align: "center",
+                                halign: "left",
                             })
                         }
                     }

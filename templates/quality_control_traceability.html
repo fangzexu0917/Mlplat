@@ -167,6 +167,8 @@
                             title: $('<div/>').text(key).html(),
                             field: key,
                             visible: true,
+                            align: "center",
+                            halign: "left",
                             formatter: function (value) {
                                 if (!isFloat(value)) {
                                     return value;  // if value is not float or integer, return value
@@ -174,7 +176,7 @@
                                 if (isInteger(value)) {
                                     return value;  // if value is integer, return value
                                 }
-                                return value.toFixed(5);  // if value is float, return fixed float
+                                return value.toFixed(2);  // if value is float, return fixed float
                             }
                         });
                     }
