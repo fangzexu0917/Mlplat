@@ -66,13 +66,13 @@
                 <a class="nav-link active" href="#distribution" data-toggle="tab">数据分布特征分析</a> {# TODO:  #}
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#ck_quality" data-toggle="tab">数据的正确性检验</a> {# TODO: 盒图检验，规则检验，增加全属性盒图 #}
+                <a class="nav-link" href="#ck_quality" data-toggle="tab">单维空间准确性检验</a> {# TODO: 盒图检验，规则检验，增加全属性盒图 #}
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#correlation" data-toggle="tab">数据的相关性检验</a> {# TODO: 图等宽 #}
+                <a class="nav-link" href="#correlation" data-toggle="tab">多维空间准确性检验</a> {# TODO: 图等宽 #}
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#reliability" data-toggle="tab">数据的可靠性检验</a> {# TODO: 正确性检验中的样本级别异常识别 #}
+                <a class="nav-link" href="#reliability" data-toggle="tab">全维空间准确性检验</a> {# TODO: 正确性检验中的样本级别异常识别 #}
             </li>
         </ul>
 
@@ -84,9 +84,11 @@
                         <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical"
                              id="chart_type_tab">
                             <a href="#histogram" class="nav-link active" id="histogram_tab" data-toggle="pill"
-                               role="tab" aria-controls="histogram" aria-selected="true">单维度值分布直方图</a>
+                               role="tab" aria-controls="histogram" aria-selected="true"
+                               style="color: grey">单维度值分布直方图</a>
                             <a href="#scatter" class="nav-link" id="scatter_tab" data-toggle="pill"
-                               role="tab" aria-controls="scatter" aria-selected="false">样本空间分布散点图</a>
+                               role="tab" aria-controls="scatter" aria-selected="false"
+                               style="color: grey">样本空间分布散点图</a>
                         </div>
                     </div>
                     <div class="col-9">
@@ -163,10 +165,12 @@
                     <div class="col-2">
                         <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical"
                              id="chart_type_tab">
-                            <a href="#boxplot" class="nav-link" id="boxplot_tab" data-toggle="pill"
-                               role="tab" aria-controls="boxplot" aria-selected="false">单维度值分布箱型图和总览</a>
+                            <a href="#boxplot" class="nav-link active" id="boxplot_tab" data-toggle="pill"
+                               role="tab" aria-controls="boxplot" aria-selected="false"
+                               style="color: grey">单维度值分布箱型图和总览</a>
                             <a href="#boxplotall" class="nav-link" id="boxplotall_tab" data-toggle="pill"
-                               role="tab" aria-controls="scatter" aria-selected="false">样本维度数据表总览</a>
+                               role="tab" aria-controls="scatter" aria-selected="false"
+                               style="color: grey">样本维度数据表总览</a>
                         </div>
                     </div>
                     <div class="col-10">
@@ -179,12 +183,9 @@
                                 </div>
                                 {% with data|first as dm %}
                                     {% for i in dm %}
-                                        <div class="tab-pane fade show active"
-                                             id="bpchart{{ forloop.counter0 }}"
-                                             role="tabpanel"
-                                             aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
+                                        <div style="display: inline-block">
                                             <div id="bpdata_chart{{ forloop.counter0 }}"
-                                                 style="width: 800px; height: 400px"></div>
+                                                 style="width: 400px; height: 400px"></div>
                                             <div class="row">
                                                 <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
                                             </div>
@@ -218,7 +219,7 @@
 
                                 </div>
                                 <div class="row">
-                                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;黄色背景的单元格表示该值超出本列盒图统计值的上下限,红色背景的单元格表示该值超出描述符信息中的取值范围，蓝色背景表示该值不符合描述符信息中的数据类型。</h6>
+                                    <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;黄色背景的单元格表示该值超出本列盒图统计值的上下限,橙红色背景的单元格表示该值超出描述符信息中的取值范围，黄绿色背景表示该值不符合描述符信息中的数据类型。</h6>
                                 </div>
                             </div>
                         </div>
@@ -228,110 +229,168 @@
             </div>
 
             <div class="tab-pane fade" id="correlation" role="tabpanel" aria-labelledby="correlation_tab">
-                <ul class="nav flex-column" id="corr_tabs" role="tablist">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
-                           aria-haspopup="true" aria-expanded="false">
-                            <span id="buttonTextCorr">Pearson相关性</span>
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="nav-link dropdown-item" id="pearsonr"
-                               data-toggle="tab" onclick="selectShowCorr($(this).text())"
-                               role="tab" href="#pearsonr_tab"
-                               aria-selected="true">Pearson相关性</a>
-                            <a class="nav-link dropdown-item" id="kendallr"
-                               data-toggle="tab" onclick="selectShowCorr($(this).text())"
-                               role="tab" href="#kendallr_tab"
-                               aria-selected="true">Kendall相关性</a>
-                            <a class="nav-link dropdown-item" id="spearmanr"
-                               data-toggle="tab" onclick="selectShowCorr($(this).text())"
-                               role="tab" href="#spearmanr_tab"
-                               aria-selected="true">Spearman相关性</a>
-                        </div>
-                        <script>
-                            function selectShowCorr(a) {
-                                $('#buttonTextCorr').text(a)
-                            }
-                        </script>
-                    </li>
-                </ul>
-                <div class="tab-content" id="corr_content">
-                    <div class="tab-pane fade show active" id="pearsonr_tab">
-                        <div class="row">
-                            <div id="pearsoncorrchart" style="width: 1000px;height:600px;margin: 0 auto"></div>
-                        </div>
-                        <div class="col-sm-12 table-responsive" style="overflow: auto">
-                            <table class="table table-sm table-bordered table-hover table-responsive"
-                                   id="pearson_corr_table"></table>
-                        </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <ul class="nav flex-column nav-pills" id="corr_tabs" role="tablist">
+                            <label><b>线性相关：</b></label>
+                            <li class="nav-item">
+                                <a class="nav-link active" id="pearsonr" data-toggle="pill" href="#pearsonr_tab"
+                                   role="tab" aria-controls="pearsonr_tab" aria-selected="true" style="color: gray">Pearson相关性</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="pointbiserialr" data-toggle="pill" href="#pointbiserialr_tab"
+                                   role="tab" aria-controls="pointbiserialr_tab" aria-selected="false"
+                                   style="color: gray">点二列相关性</a>
+                            </li>
+                            <br>
+                            <label><b>非线性相关：</b></label>
+                            <li class="nav-item">
+                                <a class="nav-link" id="kendallr" data-toggle="pill" href="#kendallr_tab"
+                                   role="tab" aria-controls="kendallr_tab" aria-selected="false" style="color: gray">Kendall相关性</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="spearmanr" data-toggle="pill" href="#spearmanr_tab"
+                                   role="tab" aria-controls="spearmanr_tab" aria-selected="false" style="color: gray">Spearman相关性</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="coef_determination" data-toggle="pill"
+                                   href="#coef_determination_tab"
+                                   role="tab" aria-controls="coef_determination_tab" aria-selected="false"
+                                   style="color: gray">判定系数</a>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="tab-pane fade" id="kendallr_tab">
-                        <div class="row">
-                            <div id="kendallcorrchart" style="margin: 0 auto;width: 1000px;height:600px;"></div>
-                        </div>
-                        <div class="col-sm-12 table-responsive" style="overflow: auto">
-                            <table class="table table-sm table-bordered table-hover table-responsive"
-                                   id="kendall_corr_table"></table>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="spearmanr_tab">
-                        <div class="row">
-                            <div id="spearmancorrchart" style="margin: 0 auto;width: 1000px;height:600px;"></div>
-                        </div>
-                        <div class="col-sm-12 table-responsive" style="overflow: auto">
-                            <table class="table table-sm table-bordered table-hover table-responsive"
-                                   id="spearman_corr_table"></table>
+                    <div class="col-md-10">
+                        <div class="tab-content" id="corr_content">
+                            <div class="tab-pane fade show active" id="pearsonr_tab">
+                                <h4 class="text-center"><b>Pearson相关性</b></h4>
+                                <h6 class="text-center" style="color: grey">数据成对且连续，线性关系，符合正态分布，且两变量中任何一个值不能都是相同</h6>
+
+                                <div id="pearsoncorrchart" style="width: 1000px;height:600px;margin: 0 auto"></div>
+
+                                <div class="col-sm-12 table-responsive" style="overflow: auto">
+                                    <table class="table table-sm table-bordered table-hover table-responsive"
+                                           id="pearson_corr_table"></table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="kendallr_tab">
+                                <h4 class="text-center"><b>Kendall相关性</b></h4>
+                                <h6 class="text-center" style="color: grey">秩相关，两变量均为有序分类变量</h6>
+                                <div class="row">
+                                    <div id="kendallcorrchart" style="margin: 0 auto;width: 1000px;height:600px;"></div>
+                                </div>
+                                <div class="col-sm-12 table-responsive" style="overflow: auto">
+                                    <table class="table table-sm table-bordered table-hover table-responsive"
+                                           id="kendall_corr_table"></table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="spearmanr_tab">
+                                <h4 class="text-center"><b>Spearman相关性</b></h4>
+                                <h6 class="text-center" style="color: grey">变量是等级变量，或不服从pearson相关性任一条件</h6>
+                                <div class="row">
+                                    <div id="spearmancorrchart"
+                                         style="margin: 0 auto;width: 1000px;height:600px;"></div>
+                                </div>
+                                <div class="col-sm-12 table-responsive" style="overflow: auto">
+                                    <table class="table table-sm table-bordered table-hover table-responsive"
+                                           id="spearman_corr_table"></table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="pointbiserialr_tab">
+                                <h4 class="text-center"><b>点二列相关性</b></h4>
+                                <h6 class="text-center" style="color: grey">两变量分别是二值变量和连续变量</h6>
+                                {% if target_num != 2 %}
+                                    <h6 class="border text-center"
+                                        style="width: 500px;height:300px;margin: 0 auto;background-color:rgb(240,238,240);line-height: 300px">
+                                        &emsp;该方法适用二值，当前数据集决策属性有{{ target_num }}个不同值，不合要求!</h6>
+                                {% else %}
+                                    <div class="row">
+                                        <div id="pointbiserialrcorrchart"
+                                             style="margin: 0 auto;width: 1000px;height:600px;"></div>
+                                    </div>
+                                    <div class="col-sm-12 table-responsive" style="overflow: auto">
+                                        <table class="table table-sm table-bordered table-hover table-responsive"
+                                               id="pointbiserialr_corr_table"></table>
+                                    </div>
+                                {% endif %}
+
+                            </div>
+                            <div class="tab-pane fade" id="coef_determination_tab">
+                                <h4 class="text-center"><b>判定系数</b></h4>
+                                <h6 class="text-center" style="color: grey">相关系数的平方，用来衡量一变量的回归方程对另一变量的解释程度</h6>
+                                <div class="row">
+                                    <div id="coef_determinationchart"
+                                         style="margin: 0 auto;width: 1000px;height:600px;"></div>
+                                </div>
+                                <div class="col-sm-12 table-responsive" style="overflow: auto">
+                                    <table class="table table-sm table-bordered table-hover table-responsive"
+                                           id="coef_determination_table"></table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="reliability" role="tabpanel" aria-labelledby="reliability_tab">
-                <ul class="nav flex-column" id="ck_reliability_tabs" role="tablist">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
-                           aria-haspopup="true" aria-expanded="false">
-                            <span id="buttonTextDc">局部异常因子检测</span>
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="nav-link dropdown-item" id="ck_reliability_lof"
-                               data-toggle="tab" onclick="selectShowDc($(this).text())"
-                               role="tab" href="#dc_table_tab_lof"
-                               aria-selected="true">局部异常因子检测</a>
-                            <a class="nav-link dropdown-item" id="ck_reliability_if"
-                               data-toggle="tab" onclick="selectShowDc($(this).text())"
-                               role="tab" href="#dc_table_tab_if"
-                               aria-selected="true">孤立森林检测</a>
-                            <a class="nav-link dropdown-item" id="ck_reliability_reg"
-                               data-toggle="tab" onclick="selectShowDc($(this).text())"
-                               role="tab" href="#dc_table_tab_reg"
-                               aria-selected="true">相似样本对比分析</a>
-                            <script>
-                                function selectShowDc(a) {
-                                    $('#buttonTextDc').text(a)
-                                }
-                            </script>
-                        </div>
-                    </li>
-                </ul>
-
-                <div class="tab-content" id="ck_reliability_content">
-                    <div class="tab-pane fade show active" id="dc_table_tab_lof">
-                        <div class="col-sm-12 table-responsive" style="overflow:auto;">
-                            <table id="dc_table_lof"
-                                   class="table table-sm table-bordered table-hover table-responsive"></table>
-                        </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <ul class="nav flex-column nav-pills" id="ck_reliability_tabs" role="tablist">
+                            <label><b>异常点识别：</b></label>
+                            <li class="nav-item">
+                                <a class="nav-link active" id="ck_reliability_lof" data-toggle="pill"
+                                   href="#dc_table_tab_lof" style="color: grey"
+                                   role="tab" aria-controls="ck_reliability_lof_tab" aria-selected="true">局部异常因子检测</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="ck_reliability_if" data-toggle="pill" href="#dc_table_tab_if"
+                                   role="tab" aria-controls="ck_reliability_if_tab" aria-selected="true"
+                                   style="color: grey">孤立森林检测</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="ck_reliability_dbs" data-toggle="pill" href="#dc_table_tab_dbs"
+                                   role="tab" aria-controls="ck_reliability_dbs_tab" aria-selected="true"
+                                   style="color: grey">DBSCAN聚类检测</a>
+                            </li>
+                            <br>
+                            <label><b>经验规则识别：</b></label>
+                            <li class="nav-item">
+                                <a class="nav-link" id="ck_reliability_reg" data-toggle="pill" href="#dc_table_tab_reg"
+                                   role="tab" aria-controls="ck_reliability_reg_tab" aria-selected="true"
+                                   style="color: grey">相似样本对比分析</a>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="tab-pane fade" id="dc_table_tab_if">
-                        <div class="col-sm-12 table-responsive" style="overflow:auto;">
-                            <table id="dc_table_if"
-                                   class="table table-sm table-bordered table-hover table-responsive"></table>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="dc_table_tab_reg">
-                        <div class="col-sm-12 table-responsive" style="overflow:auto;">
-                            <table id="dc_table_reg"
-                                   class="table table-sm table-bordered table-hover table-responsive"></table>
+                    <div class="col-md-10">
+                        <div class="tab-content" id="ck_reliability_content">
+                            <div class="tab-pane fade show active" id="dc_table_tab_lof">
+                                <h4 class="text-center"><b>局部异常因子检测</b></h4>
+                                <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                                    <table id="dc_table_lof"
+                                           class="table table-sm table-bordered table-hover table-responsive"></table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="dc_table_tab_if">
+                                <h4 class="text-center"><b>孤立森林检测</b></h4>
+                                <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                                    <table id="dc_table_if"
+                                           class="table table-sm table-bordered table-hover table-responsive"></table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="dc_table_tab_dbs">
+                                <h4 class="text-center"><b>DBSCAN聚类检测</b></h4>
+                                <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                                    <table id="dc_table_dbs"
+                                           class="table table-sm table-bordered table-hover table-responsive"></table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="dc_table_tab_reg">
+                                <h4 class="text-center"><b>相似样本对比分析</b></h4>
+                                <div class="col-sm-12 table-responsive" style="overflow:auto;">
+                                    <table id="dc_table_reg"
+                                           class="table table-sm table-bordered table-hover table-responsive"></table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -541,20 +600,20 @@
                                     //if (value === '' || undefined) {
                                     //return {css: {"background-color": 'red'}};
                                     //}
-                                    if (isInteger(value) && samdesctemp[0].数据类型 === "Float" && value != 0 || isFloat(value) && samdesctemp[0].数据类型 === "Int" && value != 0) {
-                                        return {css: {"background-color": 'blue'}};
+                                    if (isFloat(value) && samdesctemp[0].数据类型 === "Int" && value != 0) {
+                                        return {css: {"background-color": 'greenyellow'}};
                                     }
                                     let resl = dealRange(samdesctemp[0].取值范围)
                                     if (resl != null) {
                                         if (resl[0] && Number(value) < resl[2]) {
-                                            return {css: {"background": 'red'}};
+                                            return {css: {"background": 'OrangeRed'}};
                                         } else if (!resl[0] && Number(value) <= resl[2]) {
-                                            return {css: {"background": 'red'}};
+                                            return {css: {"background": 'OrangeRed'}};
                                         }
                                         if (resl[1] && Number(value) > resl[3]) {
-                                            return {css: {"background": 'red'}};
+                                            return {css: {"background": 'OrangeRed'}};
                                         } else if (!resl[1] && Number(value) >= resl[3]) {
-                                            return {css: {"background": 'red'}};
+                                            return {css: {"background": 'OrangeRed'}};
                                         }
                                     }
                                     if ((Number(value) < Number(lower[field]) || Number(value) > Number(upper[field]))) {
@@ -670,6 +729,28 @@
                     exportOptions: {ignoreColumn: [0]},
                 });
 
+                let dbsSampleList = [];
+                for (let idx = 0; idx < sampleList.length; idx++) {
+                    if (algo['dbs'].includes(idx)) {
+                        dbsSampleList.push(sampleList[idx])
+                    }
+                }
+
+                $('#dc_table_dbs').bootstrapTable({
+                    data: dbsSampleList,
+                    theadClasses: "thead-light",
+                    pagination: true,
+                    pageSize: '15',
+                    columns: check_title,
+                    showColumns: true,
+                    showToggle: true,
+                    search: true,
+                    showExport: true,
+                    exportDataType: "all",
+                    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+                    exportOptions: {ignoreColumn: [0]},
+                });
+
                 let regSampleList = [];
                 for (let idx in eudist) {
                     if (eudist.hasOwnProperty(idx)) {
@@ -726,7 +807,7 @@
                                                 if (isInteger(statList[iii][iain][fn])) {
                                                     temp[iain] = statList[iii][iain][fn]
                                                 } else {
-                                                    temp[iain] = statList[iii][iain][fn].toFixed(5);
+                                                    temp[iain] = statList[iii][iain][fn].toFixed(2);
                                                 }
                                             }
                                         }
@@ -1272,6 +1353,8 @@
         let pearsonList = {{ pearsonr|safe }};
         let kendallList = {{ kendallr|safe }};
         let spearmanList = {{ spearmanr|safe }};
+        let pointbiserialrList = {{ pointbiserialr|safe }};
+        let coef_determinationList = {{ coef_determination|safe }};
 
         // TODO: reuse the code
         for (let idx = 0; idx < pearsonList.length; idx++) {
@@ -1291,6 +1374,18 @@
             let url = '<a href="{% url 'setverbose' dataname 12345 'spearman' %}">标记冗余属性</a>';
             url = url.replace('12345', idx)
             spearmanList[idx].push(url);
+        }
+        for (let idx = 0; idx < pointbiserialrList.length; idx++) {
+            pointbiserialrList[idx][2] = pointbiserialrList[idx][2].toFixed(5)
+            let url = '<a href="{% url 'setverbose' dataname 12345 'pointbiserialr' %}">标记冗余属性</a>';
+            url = url.replace('12345', idx)
+            pointbiserialrList[idx].push(url);
+        }
+        for (let idx = 0; idx < coef_determinationList.length; idx++) {
+            coef_determinationList[idx][2] = coef_determinationList[idx][2].toFixed(5)
+            let url = '<a href="{% url 'setverbose' dataname 12345 'coef_determination' %}">标记冗余属性</a>';
+            url = url.replace('12345', idx)
+            coef_determinationList[idx].push(url);
         }
 
         $('#pearson_corr_table').bootstrapTable({
@@ -1350,6 +1445,44 @@
             exportDataType: "all",
             exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
         })
+        $('#pointbiserialr_corr_table').bootstrapTable({
+            data: pointbiserialrList,
+            theadClasses: "thead-light",
+            pagination: true,
+            pageSize: '15',
+            editable: {type: "text"},
+            columns: [
+                {title: '属性1', width: 200},
+                {title: '属性2', width: 200},
+                {title: '相关系数', width: 400},
+                {title: '操作', width: 300}
+            ],
+            showColumns: true,
+            showToggle: true,
+            search: true,
+            showExport: true,
+            exportDataType: "all",
+            exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+        })
+        $('#coef_determination_table').bootstrapTable({
+            data: coef_determinationList,
+            theadClasses: "thead-light",
+            pagination: true,
+            pageSize: '15',
+            editable: {type: "text"},
+            columns: [
+                {title: '属性1', width: 200},
+                {title: '属性2', width: 200},
+                {title: '相关系数', width: 400},
+                {title: '操作', width: 300}
+            ],
+            showColumns: true,
+            showToggle: true,
+            search: true,
+            showExport: true,
+            exportDataType: "all",
+            exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+        })
 
         let attr = [];
         let attrcorr = [];
@@ -1389,6 +1522,7 @@
                 max: 1,
                 orient: 'horizontal',
                 left: 'center',
+                text: ['High', 'Low'],
             },
             series: [{
                 type: 'heatmap',
@@ -1441,6 +1575,7 @@
                 max: 1,
                 orient: 'horizontal',
                 left: 'center',
+                text: ['High', 'Low'],
             },
             series: [{
                 type: 'heatmap',
@@ -1493,10 +1628,115 @@
                 max: 1,
                 orient: 'horizontal',
                 left: 'center',
+                text: ['High', 'Low'],
             },
             series: [{
                 type: 'heatmap',
                 data: sattrcorr,
+                label: {show: false},
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        })
+        let ppattr = [];
+        let ppattrcorr = [];
+        {% for i in pointbiserialr %}
+            if (!ppattr.includes('{{ i.0 }}')) {
+                ppattr.push('{{ i.0 }}')
+            }
+            if (!ppattr.includes('{{ i.1 }}')) {
+                ppattr.push('{{ i.1 }}')
+            }
+            ppattrcorr.push(['{{ i.0 }}', '{{ i.1 }}', {{ i.2 }}]);
+            ppattrcorr.push(['{{ i.1 }}', '{{ i.0 }}', {{ i.2 }}]);
+        {% endfor %}
+
+        let ppcorrchart = echarts.init(document.getElementById('pointbiserialrcorrchart'));
+        ppcorrchart.setOption({
+            tooltip: {
+                position: 'top'
+            },
+            animation: false,
+            xAxis: {
+                type: 'category',
+                data: ppattr,
+                splitArea: {
+                    show: true
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: ppattr,
+                splitArea: {
+                    show: true
+                }
+            },
+            visualMap: {
+                min: 0.8,
+                max: 1,
+                orient: 'horizontal',
+                left: 'center',
+                text: ['High', 'Low'],
+            },
+            series: [{
+                type: 'heatmap',
+                data: ppattrcorr,
+                label: {show: false},
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        })
+        let cattr = [];
+        let cattrcorr = [];
+        {% for i in coef_determination %}
+            if (!cattr.includes('{{ i.0 }}')) {
+                cattr.push('{{ i.0 }}')
+            }
+            if (!cattr.includes('{{ i.1 }}')) {
+                cattr.push('{{ i.1 }}')
+            }
+            cattrcorr.push(['{{ i.0 }}', '{{ i.1 }}', {{ i.2 }}]);
+            cattrcorr.push(['{{ i.1 }}', '{{ i.0 }}', {{ i.2 }}]);
+        {% endfor %}
+
+        let ccorrchart = echarts.init(document.getElementById('coef_determinationchart'));
+        ccorrchart.setOption({
+            tooltip: {
+                position: 'top'
+            },
+            animation: false,
+            xAxis: {
+                type: 'category',
+                data: cattr,
+                splitArea: {
+                    show: true
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: cattr,
+                splitArea: {
+                    show: true
+                }
+            },
+            visualMap: {
+                min: 0.8,
+                max: 1,
+                orient: 'horizontal',
+                left: 'center',
+                text: ['High', 'Low'],
+            },
+            series: [{
+                type: 'heatmap',
+                data: cattrcorr,
                 label: {show: false},
                 emphasis: {
                     itemStyle: {

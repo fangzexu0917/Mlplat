@@ -1,9 +1,12 @@
 import pandas
 import numpy
+from scipy import stats
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.ensemble import IsolationForest
+from sklearn.cluster import DBSCAN
 from sklearn.metrics import pairwise_distances
 from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
 from sklearn import preprocessing
 
 
@@ -199,36 +202,53 @@ class excelProcessor(object):
 
     def algorithm_data_check(self):
         """
-        局部异常因子检测和孤立森林检测离群点
+        局部异常因子检测、孤立森林检测离群点
         :return:
         """
         lof = LocalOutlierFactor(n_neighbors=self.df_rows // 2, contamination=.1)
         llof = lof.fit_predict(self.valuearray)
         llof_idx = [i for i in range(len(llof)) if llof[i] == -1]
-
         iif = IsolationForest(n_estimators=len(self.col_name) * 2, contamination=.1)
         lif = iif.fit_predict(self.valuearray)
         lif_idx = [i for i in range(len(lif)) if lif[i] == -1]
-
+        dbs = DBSCAN(eps=0.3, min_samples=5).fit_predict(self.valuearray[:, :2])
+        dbs_idx = [i for i in range(len(dbs)) if dbs[i] == -1]
         desc = {}
         desc['lof'] = llof_idx
         desc['if'] = lif_idx
+        desc['dbs'] = dbs_idx
         return desc
 
     def get_corr_coef(self, method):
         """
         计算维度间的相关系数，返回相关系数较高的特征对
         :param method: 何种相关系数（Pearson，Spearman，Kendall）
+        新增判定系数、点二列相关
         :return:
         """
+        flag = 0
+        attr_relate = []  # 记录相关系数过高的特征编号和相关系数，例如：(1,2,0.9)表示特征1与特征2的相关系数为0.9
+        if method == 'coef_determination':
+            method = 'pearson'
+            flag = 1
+        if method == 'pointbiserialr':
+            for i in range(self.attr_num):
+                for j in range(i + 1, self.attr_num):
+                    temp, _ = stats.pointbiserialr(self.dfattr.iloc[:, i], self.dfattr.iloc[:, j])
+                    if temp > 0.8:
+                        attr_relate.append((i, j, temp))
+            return attr_relate
+
         pearson_corr_mat = self.dfattr.corr(method=method)
 
-        attr_relate = []  # 记录相关系数过高的特征编号和相关系数，例如：(1,2,0.9)表示特征1与特征2的相关系数为0.9
         for i in range(self.attr_num):
             for j in range(i + 1, self.attr_num):
                 temp = pearson_corr_mat.iloc[i, j]
-                if temp > 0.8:
-                    attr_relate.append((i, j, temp))
+                if temp * temp > 0.64:
+                    if flag > 0:
+                        attr_relate.append((i, j, temp * temp))
+                    elif temp > 0.8:
+                        attr_relate.append((i, j, temp))
         return attr_relate
 
     def get_primary_components(self, ncomponents):
@@ -239,3 +259,20 @@ class excelProcessor(object):
         """
         pca = PCA(n_components=ncomponents)
         return pca.fit_transform(self.valuearray).tolist()
+
+    def get_dftarget_value_counts(self):
+        return self.dftarget.value_counts().count()
+
+    def get_machine_learning_algorithm(self, machine_learning_algorithm, fit_intercept, normalize, copy_X, n_jobs):
+        mlal_dict = {}
+        pandas.set_option('float_format', lambda x: '%.3f' % x)
+        if machine_learning_algorithm == "LinearRegression":
+            reg = LinearRegression(fit_intercept=fit_intercept, normalize=normalize, copy_X=copy_X, n_jobs=n_jobs).fit(
+                self.dfattr, self.dftarget)
+            temp = {}
+            for i in range(len(reg.coef_)):
+                temp[self.col_name[i]] = float(reg.coef_[i])
+            mlal_dict['coef'] = temp
+            mlal_dict['intercept_'] = reg.intercept_
+            print(mlal_dict)
+        return mlal_dict

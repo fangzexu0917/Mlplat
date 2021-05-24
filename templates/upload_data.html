@@ -482,7 +482,7 @@
                                             <div class="col-sm-2"></div>
                                             <label class="control-label"
                                                    style="text-align: center; padding-left: 10px">
-                                                <a href="#">数据文件示例</a>
+                                                <a href="{% url 'download_example' 'NASICON-data.xlsx' %}">数据文件示例</a>
                                             </label>
                                         </div>
                                     </div>
@@ -626,7 +626,7 @@
                                             <div class="col-sm-2">
                                                 <label class="control-label"
                                                        style="text-align: center; padding: 10px">
-                                                    <a href="#">文件示例</a>
+                                                    <a href="{% url 'download_example' 'sample-basic-info.xlsx' %}">文件示例</a>
                                                 </label>
                                             </div>
                                         </div>
@@ -692,12 +692,7 @@
                                                     })
                                                 }
                                             </script>
-                                            <div class="col-sm-2">
-                                                <label class="control-label"
-                                                       style="text-align: center; padding: 10px">
-                                                    <a href="#">文件示例</a>
-                                                </label>
-                                            </div>
+
                                         </div>
                                     </div>
                                     <div class="row ">
@@ -789,7 +784,7 @@
                                             <div class="col-sm-2">
                                                 <label class="control-label"
                                                        style="text-align: center; padding: 10px">
-                                                    <a href="#">文件示例</a>
+                                                    <a href="{% url 'download_example' 'descriptors-basic-info.xlsx' %}">文件示例</a>
                                                 </label>
                                             </div>
                                         </div>

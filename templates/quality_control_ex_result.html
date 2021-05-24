@@ -1,0 +1,143 @@
+{% extends 'base_index.html' %}
+{% load static %}
+{% block title %}质量检测{% endblock %}
+
+{% block script %}
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+          integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'bootstrap-table-develop/dist/bootstrap-table.css' %}">
+
+    <script type="text/javascript" src="{% static 'bootstrap-table-develop/dist/bootstrap-table.js' %}"></script>
+    <script type="text/javascript"
+            src="{% static 'bootstrap-table-develop/dist/locale/bootstrap-table-zh-CN.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'x-editable-develop/dist/bootstrap3-editable/css/bootstrap-editable.css' %}">
+    <script type="text/javascript"
+            src="{% static 'x-editable-develop/dist/bootstrap3-editable/js/bootstrap-editable.js' %}"></script>
+    <script type="text/javascript"
+            src="{% static 'bootstrap-table-develop/dist/extensions/editable/bootstrap-table-editable.js' %}"></script>
+
+    <script type="text/javascript"
+            src="{% static 'tableExport.jquery.plugin/libs/FileSaver/FileSaver.min.js' %}"></script>
+    {#    <script type="text/javascript"#}
+    {#            src="{% static 'tableExport.jquery.plugin/libs/js-xlsx/xlsx.core.min.js' %}"></script>#}
+    <script type="text/javascript"
+            src="{% static 'tableExport.jquery.plugin/libs/js-xlsx/xlsx.full.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'tableExport.jquery.plugin/tableExport.js' %}"></script>
+    <script type="text/javascript"
+            src="{% static 'bootstrap-table-develop/dist/extensions/export/bootstrap-table-export.js' %}"></script>
+    <script type="text/javascript" src="{% static 'incubator-echarts-4.7.0/dist/echarts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'incubator-echarts-4.7.0/echarts-gl.js' %}"></script>
+    <script type="text/javascript" src="{% static 'incubator-echarts-4.7.0/dist/extension/dataTool.js' %}"></script>
+{% endblock %}
+
+{% block style %}
+    <style>
+        .w100 .th-inner {
+            width: 100px;
+        }
+
+        .panel-title > p {
+            margin: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container" style="margin-top: 2%;">
+        <div class="row">
+            <button id="uploadButton" type="button" class="btn btn-lg btn btn-success btn-arrow-right"
+                    onclick='window.location.href="{% url 'upload' %}"'>数据上传
+            </button>
+            <button id="showDataButton" type="button" class="btn btn-lg btn btn-success btn-arrow-right" disabled
+                    onclick='window.location.href="{% url 'qualitycontrol' dataname %}"'>数据质量检测
+            </button>
+            <button id="beginFSButton" type="button" class="btn btn-lg btn btn-info btn-arrow-right"
+                    onclick='window.location.href="{% url 'domainknowledgeembedding' dataname %}"'>构效关系建模
+            </button>
+            <button id="beginMLButton" type="button" class="btn btn-lg btn btn-info btn-arrow-right"
+                    onclick='window.location.href="{% url 'machinelearning' dataname 'qualitycontrol' %}"'>性能预测
+            </button>
+        </div>
+        <div class="row">
+            <div class="col-sm-12" style="overflow:auto;">
+                <table id="mlal_table"
+                       class="table table-sm table-hover table-responsive"></table>
+            </div>
+        </div>
+
+
+        <div class="formControls  col-sm-2" style="padding-left: 15px">
+            <button type="button" class="btn btn-success "
+                    onclick='window.location.href="{% url 'quality_control_exploratory' dataname %}"'
+                    style="height: 45px;text-align: center;padding-top: 10px">
+                < 返回
+            </button>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        function isInteger(arg) {
+            return new RegExp("^[0-9]*$").test(arg)
+        }
+
+        function isFloat(arg) {
+            return new RegExp("^(-?\\d+)(\\.\\d+)?$").test(arg)
+        }
+
+        let sampleList = [];
+        $.ajax({
+            url: '/data/' + '{{ dataname }}',
+            type: 'get',
+            async: true,
+            success: function (res) {
+
+                let result = res.split('\n');
+                sampleList = eval(result[0]);
+                let sampleColumns = [];
+
+                for (let key in sampleList[0]) {
+                    if (sampleList[0].hasOwnProperty(key)) {
+                        sampleColumns.push({
+                            title: $('<div/>').text(key).html(),
+                            field: key,
+                            visible: true,
+                            align: "center",
+                            halign: "left",
+                            formatter: function (value) {
+                                if (!isFloat(value)) {
+                                    return value;  // if value is not float or integer, return value
+                                }
+                                if (isInteger(value)) {
+                                    return value;  // if value is integer, return value
+                                }
+                                return value.toFixed(2);  // if value is float, return fixed float
+                            }
+                        });
+                    }
+                }
+                let mlal_res = {{ mlal_res|safe }};
+                console.log(mlal_res);
+
+                $('#mlal_table').bootstrapTable({
+                    data: mlal_res,
+                    theadClasses: "thead-light",
+                    pagination: true,
+                    pageSize: '15',
+                    columns: sampleColumns,
+                    showColumns: true,
+                    showToggle: true,
+                    search: true,
+                    showExport: true,
+                    exportDataType: "all",
+                    exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+                });
+
+
+            }
+        });
+
+
+    </script>
+{% endblock %}

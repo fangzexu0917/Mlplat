@@ -1,104 +1,61 @@
-<div class="tab-pane fade" id="ck_quality" role="tabpanel" aria-labelledby="data_check_tab">
-    <div class="row">
-        <div class="col-2">
-            <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical"
-                 id="chart_type_tab">
-                <a href="#boxplot" class="nav-link" id="boxplot_tab" data-toggle="pill"
-                   role="tab" aria-controls="boxplot" aria-selected="false">单维度值分布箱型图</a>
-                <a href="#boxplotall" class="nav-link" id="boxplotall_tab" data-toggle="pill"
-                   role="tab" aria-controls="scatter" aria-selected="false">箱型图总览</a>
-            </div>
-        </div>
-        <div class="col-10">
-            <div class="tab-content" id="chart_type_content">
-                <div class="tab-pane fade show active" id="boxplot" role="tabpanel"
-                     aria-labelledby="boxplot_tab">
-                    <ul class="nav flex-column" id="bpchart_tabs" role="tablist">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
-                               role="button"
-                               aria-haspopup="true" aria-expanded="false">
-                                下拉查看各属性分布箱型图
-                            </a>
-                            <div class="dropdown-menu" style="height: 200px; overflow-y: scroll">
-                                {% with data|first as dm %}
-                                    {% for i in dm %}
-                                        <a class="nav-link dropdown-item"
-                                           id="bpchart_tab{{ forloop.counter0 }}"
-                                           data-toggle="tab"
-                                           role="tab" href="#bpchart{{ forloop.counter0 }}"
-                                           aria-selected="true">{{ i }}</a>
-                                    {% endfor %}
-                                {% endwith %}
-                            </div>
-                        </li>
-                    </ul>
-                    <div class="tab-content" id="bpchart_content">
-                        {% with data|first as dm %}
-                            {% for i in dm %}
-                                {% if forloop.counter0 == col_start %}
-                                    <div class="tab-pane fade show active"
-                                         id="bpchart{{ forloop.counter0 }}"
-                                         role="tabpanel"
-                                         aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
-                                        <div id="bpdata_chart{{ forloop.counter0 }}"
-                                             style="width: 600px; height: 400px"></div>
-                                        <div class="row">
-                                            <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    {% if forloop.counter0 > col_start %}
-                                        <div class="tab-pane fade" id="bpchart{{ forloop.counter0 }}"
-                                             role="tabpanel"
-                                             aria-labelledby="bpchart_tab{{ forloop.counter0 }}">
-                                            <div id="bpdata_chart{{ forloop.counter0 }}"
-                                                 style="width: 600px; height: 400px"></div>
-                                            <div class="row">
-                                                <h6>
-                                                    注：&nbsp;&nbsp;&nbsp;&nbsp;Q1为下四分位数，Q3为上四分位数，IQR为四分位距</h6>
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endwith %}
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="boxplotall" role="tabpanel" aria-labelledby="boxplotall_tab">
-                    <div id="bpallchart" style="width: 800px; height: 400px"></div>
-                    <div class="row">
-                        <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上图中数据为最大最小归一化后的值，仅供参考</h6>
-                    </div>
-                </div>
-            </div>
-        </div>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+       aria-haspopup="true" aria-expanded="false">
+        <span id="buttonTextDc">局部异常因子检测</span>
+    </a>
+    <div class="dropdown-menu">
+        <a class="nav-link dropdown-item" id="ck_reliability_lof"
+           data-toggle="tab" onclick="selectShowDc($(this).text())"
+           role="tab" href="#dc_table_tab_lof"
+           aria-selected="true">局部异常因子检测</a>
+        <a class="nav-link dropdown-item" id="ck_reliability_if"
+           data-toggle="tab" onclick="selectShowDc($(this).text())"
+           role="tab" href="#dc_table_tab_if"
+           aria-selected="true">孤立森林检测</a>
+        <a class="nav-link dropdown-item" id="ck_reliability_dbs"
+           data-toggle="tab" onclick="selectShowDc($(this).text())"
+           role="tab" href="#dc_table_tab_dbs"
+           aria-selected="true">DBSCAN聚类检测</a>
+        <a class="nav-link dropdown-item" id="ck_reliability_reg"
+           data-toggle="tab" onclick="selectShowDc($(this).text())"
+           role="tab" href="#dc_table_tab_reg"
+           aria-selected="true">相似样本对比分析</a>
+        <script>
+            function selectShowDc(a) {
+                $('#buttonTextDc').text(a)
+            }
+        </script>
     </div>
-    <ul class="nav flex-column" id="ck_quality_tabs" role="tablist">
-        <li class="nav-item dropdown">
-            {#                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"#}
-            {#                           aria-haspopup="true" aria-expanded="false">#}
-            {#                            <span id="buttonTextDc">所有样本</span>#}
-            {#                        </a>#}
-            <div class="dropdown-menu">
-                <a class="nav-link dropdown-item" id="ck_quality_all"
-                   data-toggle="tab" onclick="selectShowDc($(this).text())"
-                   role="tab" href="#dc_table_tab_all"
-                   aria-selected="true">所有样本</a>
-            </div>
-        </li>
-    </ul>
+</li>
 
-    <div class="tab-content" id="ck_quality_content">
-        <div class="tab-pane fade show active" id="dc_table_tab_all">
-            <div class="col-sm-12 table-responsive" style="overflow:auto;">
-                <table id="dc_table"
-                       class="table table-sm table-bordered table-hover table-responsive"></table>
-            </div>
-        </div>
-
-    </div>
-    <div class="row">
-        <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;黄色背景的单元格表示该值超出本列盒图统计值的上下限</h6>
-    </div>
-</div>
+let mlal_list = [];
+        mlal_list.push({
+            title: $('<div/>').text('coef').html(),
+            field: 'coef',
+            visible: true,
+            align: "center",
+            halign: "left",
+            formatter: function (value) {
+                if (!isFloat(value)) {
+                    return value;  // if value is not float or integer, return value
+                }
+                if (isInteger(value)) {
+                    return value;  // if value is integer, return value
+                }
+                return value.toFixed(2);  // if value is float, return fixed float
+            }
+        })
+        console.log({{ mlal_res }})
+        $('#mlal_table').bootstrapTable({
+            data: {{ mlal_res}},
+            theadClasses: "thead-light",
+            pagination: true,
+            pageSize: '15',
+            columns: mlal_list,
+            showColumns: true,
+            showToggle: true,
+            search: true,
+            showExport: true,
+            exportDataType: "all",
+            exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+        });

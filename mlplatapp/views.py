@@ -172,6 +172,20 @@ def info(request, name):
                       {'dataitem': models.Data.objects.filter(data_name=name), 'descinfo': desc_info})
 
 
+def download_example(request, file_name):
+    """
+
+    :param request:
+    :param file_name:
+    :return:
+    """
+    the_file_name = os.path.join(settings.BASE_DIR, 'example_file', file_name)
+    response = FileResponse(open(the_file_name, 'rb'))  # 这里创建返回
+    response['Content-Type'] = 'application/octet-stream'  # 注意格式
+    response['Content-Disposition'] = 'attachment;filename=' + file_name  # 注意filename 这个是下载后的名字
+    return response
+
+
 def upload(request):
     global si
     if request.method == 'POST':
@@ -222,7 +236,7 @@ def upload(request):
         # 数据质量检测结果仅作为中间数据存储，数据库不保留这些信息
 
         data_abstract = request.POST.get('data_abstract')
-        data_keywords = request.POST.get('data_keywords')
+        data_keywords = request.POST.get('data_keywords').split(';')
         data_field = request.POST.get('domainType')
         data_interest = request.POST.get('areaType')
         sample_num = request.POST.get('data_size_m')
@@ -395,6 +409,9 @@ def quality_control_precision(request, data_name):
         pearson_corr = excelproc.get_corr_coef('pearson')
         kendall_corr = excelproc.get_corr_coef('kendall')
         spearman_corr = excelproc.get_corr_coef('spearman')
+        coef_determination_corr = excelproc.get_corr_coef('coef_determination')
+        pointbiserialr_corr = excelproc.get_corr_coef('pointbiserialr')
+        target_num = excelproc.get_dftarget_value_counts()
         attr_name = excelproc.col_name[:-1]
         pearson_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in pearson_corr]  # 将属性下标转为属性名
         pearson_corr.sort(key=lambda x: x[2], reverse=True)
@@ -402,6 +419,10 @@ def quality_control_precision(request, data_name):
         kendall_corr.sort(key=lambda x: x[2], reverse=True)
         spearman_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in spearman_corr]  # 将属性下标转为属性名
         spearman_corr.sort(key=lambda x: x[2], reverse=True)
+        coef_determination_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in coef_determination_corr]
+        coef_determination_corr.sort(key=lambda x: x[2], reverse=True)
+        pointbiserialr_corr = [[attr_name[i[0]], attr_name[i[1]], i[2]] for i in pointbiserialr_corr]  # 将属性下标转为属性名
+        pointbiserialr_corr.sort(key=lambda x: x[2], reverse=True)
 
         stat_data_quality = []  # 对表格数据进行质量检测，得到基本统计信息
         for key, val in excelproc.statistics_data_check().to_dict().items():
@@ -409,19 +430,16 @@ def quality_control_precision(request, data_name):
 
         stat_data_quality_name, res = models.SavaData('stat_data_quality_' + data_name, stat_data_quality, True,
                                                       host=HOST, port=PORT, database=DATABASE)
-
         algo_data_quality = []  # 检测表格数据质量，得到算法检测结果
         for key, val in excelproc.algorithm_data_check().items():
             algo_data_quality.append({key: val})
         algo_data_quality_name, res = models.SavaData('algo_data_quality_' + data_name, algo_data_quality, True,
                                                       host=HOST, port=PORT, database=DATABASE)
-
         eudist_data_quality = []  # 检测表格数据质量，得到算法检测结果
         for key, val in excelproc.eudist_data_check().items():
             eudist_data_quality.append({'NO': key, 'count': val})
         eudist_data_quality_name, res = models.SavaData('eudist_data_quality_' + data_name, eudist_data_quality, True,
                                                         host=HOST, port=PORT, database=DATABASE)
-
         stat = models.ReadData(stat_data_quality_name, host=HOST, port=PORT, database=DATABASE)
         algo = models.ReadData(algo_data_quality_name, host=HOST, port=PORT, database=DATABASE)
         eudist = models.ReadData(eudist_data_quality_name, host=HOST, port=PORT, database=DATABASE)
@@ -438,12 +456,15 @@ def quality_control_precision(request, data_name):
         return render(request, 'quality_control_precision.html', {
             'dataname': data_name,
             'data': data,
+            'target_num': target_num,
             'stat': json.dumps(stat_dict),
             'algo': algo_dict,
             'eudist': json.dumps(eudist),
             'pearsonr': pearson_corr,
             'kendallr': kendall_corr,
             'spearmanr': spearman_corr,
+            'coef_determination': coef_determination_corr,
+            'pointbiserialr': pointbiserialr_corr,
             'col_start': si,
             'col_name': excelproc.col_name,
             'pca_result': pca_result,
@@ -453,10 +474,48 @@ def quality_control_precision(request, data_name):
 
 def quality_control_exploratory(request, data_name):
     if request.method == 'POST':
+        data = models.ReadData(data_name, host=HOST, port=PORT, database=DATABASE)
+        excelproc = utils.excelProcessor(data)
+        machine_learning_algorithm = request.POST.get("machine_learning_algorithm")
+        print(machine_learning_algorithm)
+        fit_intercept = request.POST.get("fit_intercept")
+        print(fit_intercept)
+        normalize = request.POST.get("normalize")
+        print(normalize)
+        copy_X = request.POST.get("copy_X")
+        print(copy_X)
+        n_jobs = request.POST.get("n_jobs")
+        print(n_jobs)
+        mlal_list = []
+        for key, val in excelproc.get_machine_learning_algorithm(machine_learning_algorithm, fit_intercept, normalize,
+                                                                 copy_X, n_jobs).items():
+            mlal_list.append({key: val})
+        print(mlal_list)
+        mlal_name, res = models.SavaData('mlal_' + data_name, mlal_list, True, host=HOST, port=PORT, database=DATABASE)
+        return redirect(reverse('quality_control_ex_result', kwargs={
+            'data_name': data_name,
+
+        }))
+
+    if request.method == 'GET':
+        return render(request, 'quality_control_exploratory.html', {
+            'dataname': data_name,
+        })
+
+
+def quality_control_ex_result(request, data_name):
+    if request.method == 'POST':
         pass
     if request.method == 'GET':
-        return render(request, 'testhtml.html', {
-            'dataname': data_name
+        data = models.ReadData(data_name, host=HOST, port=PORT, database=DATABASE)
+        mlal_res = models.ReadData("mlal_" + data_name, host=HOST, port=PORT, database=DATABASE)
+        temp = []
+        temp.append(mlal_res[0]['coef'])
+        print(temp)
+        return render(request, 'quality_control_ex_result.html', {
+            'dataname': data_name,
+            'data': data,
+            'mlal_res': temp,
         })
 
 

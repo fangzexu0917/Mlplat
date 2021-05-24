@@ -13,7 +13,7 @@ urlpatterns = [
     path('algoquality/<str:name>', views.data, name='algoquality'),
 
     path('download/<str:name>', views.download, name='download'),  # 下载逻辑
-
+    path('download_example/<str:file_name>', views.download_example, name='download_example'),  # 示例文件下载
     # path('qualitycontrol/<str:data_name>', views.qualitycontrol, name='qualitycontrol'),  # 数据质量检测逻辑
     path('qualitycontrol/<str:data_name>', views.quality_control, name='qualitycontrol'),
     path('qualitycontrol/traceability/<str:data_name>', views.quality_control_traceability,
@@ -22,7 +22,8 @@ urlpatterns = [
          name='quality_control_precision'),
     path('qualitycontrol/exploratory/<str:data_name>', views.quality_control_exploratory,
          name='quality_control_exploratory'),
-
+    path('qualitycontrol/exploratory/result/<str:data_name>', views.quality_control_ex_result,
+         name='quality_control_ex_result'),
     path('domainknowledgeembedding/<str:data_name>', views.chooseDomainKnowledgeEmbeddingMethod,
          name='domainknowledgeembedding'),  # 选择领域知识嵌入方式
 
