@@ -4,10 +4,14 @@ from scipy import stats
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.ensemble import IsolationForest
 from sklearn.cluster import DBSCAN
-from sklearn.metrics import pairwise_distances
+from sklearn.metrics import pairwise_distances, mean_squared_error, r2_score, confusion_matrix, accuracy_score, \
+    recall_score, f1_score
 from sklearn.decomposition import PCA
-from sklearn.linear_model import LinearRegression
 from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Ridge, Lasso, LogisticRegression
+from sklearn.svm import SVR, SVC
+from sklearn.neighbors import KNeighborsClassifier
 
 
 def is_number(s):
@@ -36,6 +40,17 @@ def is_number(s):
         pass
 
     return False
+
+
+def str_to_bool(s):
+    if s == 'False':
+        return False
+    else:
+        return True
+
+
+def mape(y_true, y_pred):
+    return numpy.mean(numpy.abs((y_pred - y_true) / y_true))
 
 
 class excelProcessor(object):
@@ -263,16 +278,145 @@ class excelProcessor(object):
     def get_dftarget_value_counts(self):
         return self.dftarget.value_counts().count()
 
-    def get_machine_learning_algorithm(self, machine_learning_algorithm, fit_intercept, normalize, copy_X, n_jobs):
-        mlal_dict = {}
-        pandas.set_option('float_format', lambda x: '%.3f' % x)
-        if machine_learning_algorithm == "LinearRegression":
-            reg = LinearRegression(fit_intercept=fit_intercept, normalize=normalize, copy_X=copy_X, n_jobs=n_jobs).fit(
-                self.dfattr, self.dftarget)
-            temp = {}
-            for i in range(len(reg.coef_)):
-                temp[self.col_name[i]] = float(reg.coef_[i])
-            mlal_dict['coef'] = temp
-            mlal_dict['intercept_'] = reg.intercept_
-            print(mlal_dict)
-        return mlal_dict
+    def get_Ridge(self, preprocessing1, train_test_split1, alpha1, fit_intercept1, normalize1, copy_X1, max_iter1,
+                  tol1):
+        tempX = self.X
+        if preprocessing1 == 'MinMaxScaler':
+            tempX = preprocessing.MinMaxScaler().fit_transform(tempX)
+        else:
+            tempX = preprocessing.scale(tempX)
+        X_train, X_test, y_train, y_test = train_test_split(tempX, self.Y, test_size=train_test_split1, random_state=42)
+        clf = Ridge(alpha=alpha1, fit_intercept=fit_intercept1, normalize=normalize1, copy_X=copy_X1,
+                    max_iter=max_iter1, tol=tol1)
+        clf.fit(X_train, y_train)
+        y_predict = clf.predict(X_test)
+        RMSE = numpy.sqrt(mean_squared_error(y_test, y_predict))
+        MAPE = mape(y_test, y_predict)
+        R2 = r2_score(y_test, y_predict)
+        Ridge_dict = {}
+        Ridge_dict['y_test'] = y_test.tolist()
+        Ridge_dict['y_predict'] = y_predict.tolist()
+        Ridge_dict['RMSE'] = RMSE
+        Ridge_dict['MAPE'] = MAPE
+        Ridge_dict['R2'] = R2
+        return Ridge_dict
+
+    def get_Lasso(self, preprocessing1, train_test_split1, alpha1, fit_intercept1, normalize1, copy_X1, precompute1,
+                  max_iter1, tol1, warm_start1, positive1):
+        tempX = self.X
+        if preprocessing1 == 'MinMaxScaler':
+            tempX = preprocessing.MinMaxScaler().fit_transform(tempX)
+        else:
+            tempX = preprocessing.scale(tempX)
+        X_train, X_test, y_train, y_test = train_test_split(tempX, self.Y, test_size=train_test_split1, random_state=42)
+        clf = Lasso(alpha=alpha1, fit_intercept=fit_intercept1, normalize=normalize1, copy_X=copy_X1,
+                    precompute=precompute1, max_iter=max_iter1, tol=tol1, warm_start=warm_start1, positive=positive1)
+        clf.fit(X_train, y_train)
+        y_predict = clf.predict(X_test)
+        RMSE = numpy.sqrt(mean_squared_error(y_test, y_predict))
+        MAPE = mape(y_test, y_predict)
+        R2 = r2_score(y_test, y_predict)
+        Lasso_dict = {}
+        Lasso_dict['y_test'] = y_test.tolist()
+        Lasso_dict['y_predict'] = y_predict.tolist()
+        Lasso_dict['RMSE'] = RMSE
+        Lasso_dict['MAPE'] = MAPE
+        Lasso_dict['R2'] = R2
+        return Lasso_dict
+
+    def get_SVR(self, preprocessing1, train_test_split1, kernel1, degree1, gamma1, coef01, tol1, C1, epsilon1,
+                shrinking1, cache_size1, verbose1, max_iter1):
+        tempX = self.X
+        if preprocessing1 == 'MinMaxScaler':
+            tempX = preprocessing.MinMaxScaler().fit_transform(tempX)
+        else:
+            tempX = preprocessing.scale(tempX)
+        X_train, X_test, y_train, y_test = train_test_split(tempX, self.Y, test_size=train_test_split1, random_state=42)
+        clf = SVR(kernel=kernel1, degree=degree1, gamma=gamma1, coef0=coef01, tol=tol1, C=C1, epsilon=epsilon1,
+                  shrinking=shrinking1, cache_size=cache_size1, verbose=verbose1, max_iter=max_iter1)
+        clf.fit(X_train, y_train)
+        y_predict = clf.predict(X_test)
+        RMSE = numpy.sqrt(mean_squared_error(y_test, y_predict))
+        MAPE = mape(y_test, y_predict)
+        R2 = r2_score(y_test, y_predict)
+        SVR_dict = {}
+        SVR_dict['y_test'] = y_test.tolist()
+        SVR_dict['y_predict'] = y_predict.tolist()
+        SVR_dict['RMSE'] = RMSE
+        SVR_dict['MAPE'] = MAPE
+        SVR_dict['R2'] = R2
+        return SVR_dict
+
+    def get_LogisticRegression(self, preprocessing1, train_test_split1, penalty1, dual1, tol1, C1, fit_intercept1,
+                               intercept_scaling1, solver1, max_iter1, multi_class1, verbose1, warm_start1):
+        tempX = self.X
+        if preprocessing1 == 'MinMaxScaler':
+            tempX = preprocessing.MinMaxScaler().fit_transform(tempX)
+        else:
+            tempX = preprocessing.scale(tempX)
+        # print(self.Y.dtype)
+        X_train, X_test, y_train, y_test = train_test_split(tempX, self.Y, test_size=train_test_split1, random_state=42)
+        clf = LogisticRegression(penalty=penalty1, dual=dual1, tol=tol1, C=C1, fit_intercept=fit_intercept1,
+                                 intercept_scaling=intercept_scaling1, solver=solver1, max_iter=max_iter1,
+                                 multi_class=multi_class1, verbose=verbose1, warm_start=warm_start1)
+        clf.fit(X_train, y_train)
+        y_predict = clf.predict(X_test)
+        C_martix = confusion_matrix(y_test, y_predict)
+        A_score = accuracy_score(y_test, y_predict)
+        R_score = recall_score(y_test, y_predict, average='micro')
+        F1_score = f1_score(y_test, y_predict, average='micro')
+        LR_dict = {}
+        LR_dict['C_martix'] = C_martix.tolist()
+        LR_dict['A_score'] = A_score
+        LR_dict['R_score'] = R_score
+        LR_dict['F1_score'] = F1_score
+        return LR_dict
+
+    def get_SVC(self, preprocessing1, train_test_split1, C1, kernel1, degree1, gamma1, coef01, shrinking1, probability1,
+                tol1, cache_size1, verbose1, max_iter1, decision_function_shape1, break_ties1):
+        tempX = self.X
+        if preprocessing1 == 'MinMaxScaler':
+            tempX = preprocessing.MinMaxScaler().fit_transform(tempX)
+        else:
+            tempX = preprocessing.scale(tempX)
+        # print(self.Y.dtype)
+        X_train, X_test, y_train, y_test = train_test_split(tempX, self.Y, test_size=train_test_split1, random_state=42)
+        clf = SVC(C=C1, kernel=kernel1, degree=degree1, gamma=gamma1, coef0=coef01, shrinking=shrinking1,
+                  probability=probability1, tol=tol1, cache_size=cache_size1, verbose=verbose1, max_iter=max_iter1,
+                  decision_function_shape=decision_function_shape1, break_ties=break_ties1)
+        clf.fit(X_train, y_train)
+        y_predict = clf.predict(X_test)
+        C_martix = confusion_matrix(y_test, y_predict)
+        A_score = accuracy_score(y_test, y_predict)
+        R_score = recall_score(y_test, y_predict, average='micro')
+        F1_score = f1_score(y_test, y_predict, average='micro')
+        SVC_dict = {}
+        SVC_dict['C_martix'] = C_martix.tolist()
+        SVC_dict['A_score'] = A_score
+        SVC_dict['R_score'] = R_score
+        SVC_dict['F1_score'] = F1_score
+        return SVC_dict
+
+    def get_KNeighborsClassifier(self, preprocessing1, train_test_split1, n_neighbors1, weights1, algorithm1,
+                                 leaf_size1, p1):
+        tempX = self.X
+        if preprocessing1 == 'MinMaxScaler':
+            tempX = preprocessing.MinMaxScaler().fit_transform(tempX)
+        else:
+            tempX = preprocessing.scale(tempX)
+        # print(self.Y.dtype)
+        X_train, X_test, y_train, y_test = train_test_split(tempX, self.Y, test_size=train_test_split1, random_state=42)
+        clf = KNeighborsClassifier(n_neighbors=n_neighbors1, weights=weights1, algorithm=algorithm1,
+                                   leaf_size=leaf_size1, p=p1)
+        clf.fit(X_train, y_train)
+        y_predict = clf.predict(X_test)
+        C_martix = confusion_matrix(y_test, y_predict)
+        A_score = accuracy_score(y_test, y_predict)
+        R_score = recall_score(y_test, y_predict, average='micro')
+        F1_score = f1_score(y_test, y_predict, average='micro')
+        KNN_dict = {}
+        KNN_dict['C_martix'] = C_martix.tolist()
+        KNN_dict['A_score'] = A_score
+        KNN_dict['R_score'] = R_score
+        KNN_dict['F1_score'] = F1_score
+        return KNN_dict

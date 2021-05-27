@@ -60,9 +60,27 @@
                     onclick='window.location.href="{% url 'machinelearning' dataname 'qualitycontrol' %}"'>性能预测
             </button>
         </div>
+        <h4 class="text-center"><b>混淆矩阵</b></h4>
         <div class="row">
-
-            <div id="fit_chart" style="width: 800px; height: 400px"></div>
+            <div style="overflow:auto;margin: auto">
+                <table id="LR_table" class="table table-hover table-responsive"></table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div class>注：行为实际分类，列为预测分类</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div><b>准确率:</b>{{ mlal_res.1.A_score }}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div><b>召回率:</b>{{ mlal_res.2.R_score }}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div><b>F1值:</b>{{ mlal_res.3.F1_score }}</div>
         </div>
 
 
@@ -87,34 +105,58 @@
         let mlal_res ={{ mlal_res|safe }};
         console.log(mlal_res);
         let mlal_list = [];
-        for (let i = 0; i < mlal_res[0]['y_test'].length; i++) {
-            let temp = [];
-            temp.push(mlal_res[0]['y_test'][i], mlal_res[1]['y_predict'][i], i + 1);
+        let LRColumns = [];
+        LRColumns.push({
+            title: 'class',
+            field: 'class',
+            visible: true,
+            align: 'center',
+            halign: 'left',
+            formatter: function (value, row, index) {
+                return 'class' + index;
+            }
+        })
+        for (let i = 0; i < mlal_res[0]['C_martix'].length; i++) {
+            let temp = {};
+            for (let j = 0; j < mlal_res[0]['C_martix'][i].length; j++) {
+                eval("temp.class" + j + '=' + mlal_res[0]['C_martix'][i][j]);
+            }
             mlal_list.push(temp);
         }
         console.log(mlal_list);
-        let fit_chart = echarts.init(document.getElementById('fit_chart'));
-        fit_chart.setOption({
-            title: [{text: '拟合图', left: 'center'}, {
-                text: "RMSE:" + mlal_res[2]['RMSE'].toFixed(2) + "   MAPE:" + mlal_res[3]['MAPE'].toFixed(2) + "   R2:" + mlal_res[4]['R2'].toFixed(2),
-                textStyle: {fontSize: 14}, left: 'center', top: '6%'
-            }],
-            xAxis: {name: 'y_test'},
-            yAxis: {name: 'y_predict'},
-            tooltip: {
-                showDelay: 0,
-                formatter: function (param) {
-                    return '测试样本编号: ' + param.value[2];
-                }
-            },
-            series: [{
-                name: '测试样本',
-                data: mlal_list,
-                type: "scatter",
-                symbol: 'circle',
-                symbolSize: 10,
-            }]
-        });
+        for (let key in mlal_list[0]) {
+            if (mlal_list[0].hasOwnProperty(key)) {
+                LRColumns.push({
+                    title: $('<div/>').text(key).html(),
+                    field: key,
+                    visible: true,
+                    align: "center",
+                    halign: "left",
+                    formatter: function (value) {
+                        if (!isFloat(value)) {
+                            return value;  // if value is not float or integer, return value
+                        }
+                        if (isInteger(value)) {
+                            return value;  // if value is integer, return value
+                        }
+                        return value.toFixed(2);  // if value is float, return fixed float
+                    }
+                });
+            }
+        }
 
+        $('#LR_table').bootstrapTable({
+            data: mlal_list,
+            theadClasses: "thead-light",
+            pagination: false,
+            pageSize: '15',
+            columns: LRColumns,
+            showColumns: false,
+            showToggle: false,
+            search: false,
+            showExport: false,
+            exportDataType: "all",
+            exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
+        });
     </script>
 {% endblock %}

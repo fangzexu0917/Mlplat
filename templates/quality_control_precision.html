@@ -1063,7 +1063,6 @@
     <script type="text/javascript">
         let rawdata = {{ data|safe }};
         let datafield = {};  // {field: [value]}
-
         for (let ii in rawdata[0]) {
             if (rawdata[0].hasOwnProperty(ii)) {
                 datafield[ii] = [];
@@ -1073,14 +1072,18 @@
             }
         }
 
+
         let fields = [];
         for (let i in datafield) {
             fields.push(i);
         }
+        //console.log(fields)
         let fielddata = [];
         for (let i in datafield) {
             fielddata.push(datafield[i])
         }
+
+        //console.log(fielddata)
 
         function getMaxV(distributionInfo) {
             let max = 0
@@ -1131,7 +1134,6 @@
                         data: datafield[fields[i]]
                     }]
                 });
-
                 let bpdata = echarts.dataTool.prepareBoxplotData([fielddata[i]]);
                 let bpdata_chart = echarts.init(document.getElementById('bpdata_chart' + i.toString()));
                 bpdata_chart.setOption({
@@ -1243,6 +1245,7 @@
                 pca3d_res.remove(pca3_ores[j]);
             }
         }
+        console.log(lof_res)
         for (let j in algo_ores['if']) {
             if (algo_ores['if'].hasOwnProperty(j)) {
                 if_res.push(pca_ores[j]);

@@ -61,8 +61,10 @@
             </button>
         </div>
         <div class="row">
+            <div class="col-sm-12 text-center">
+                <h2><b>该数据无法使用这种算法！</b></h2>
+            </div>
 
-            <div id="fit_chart" style="width: 800px; height: 400px"></div>
         </div>
 
 
@@ -74,47 +76,5 @@
             </button>
         </div>
     </div>
-    <script type="text/javascript">
 
-        function isInteger(arg) {
-            return new RegExp("^[0-9]*$").test(arg)
-        }
-
-        function isFloat(arg) {
-            return new RegExp("^(-?\\d+)(\\.\\d+)?$").test(arg)
-        }
-
-        let mlal_res ={{ mlal_res|safe }};
-        console.log(mlal_res);
-        let mlal_list = [];
-        for (let i = 0; i < mlal_res[0]['y_test'].length; i++) {
-            let temp = [];
-            temp.push(mlal_res[0]['y_test'][i], mlal_res[1]['y_predict'][i], i + 1);
-            mlal_list.push(temp);
-        }
-        console.log(mlal_list);
-        let fit_chart = echarts.init(document.getElementById('fit_chart'));
-        fit_chart.setOption({
-            title: [{text: '拟合图', left: 'center'}, {
-                text: "RMSE:" + mlal_res[2]['RMSE'].toFixed(2) + "   MAPE:" + mlal_res[3]['MAPE'].toFixed(2) + "   R2:" + mlal_res[4]['R2'].toFixed(2),
-                textStyle: {fontSize: 14}, left: 'center', top: '6%'
-            }],
-            xAxis: {name: 'y_test'},
-            yAxis: {name: 'y_predict'},
-            tooltip: {
-                showDelay: 0,
-                formatter: function (param) {
-                    return '测试样本编号: ' + param.value[2];
-                }
-            },
-            series: [{
-                name: '测试样本',
-                data: mlal_list,
-                type: "scatter",
-                symbol: 'circle',
-                symbolSize: 10,
-            }]
-        });
-
-    </script>
 {% endblock %}

@@ -63,112 +63,373 @@
 
         <ul class="nav nav-tabs" id="data_tabs" role="tablist" style="padding-top: 2%; margin-bottom: 2%">
             <li class="nav-item">
-                <a class="nav-link active" href="#sortingAlgorithm" data-toggle="tab">分类算法</a>
+                <a class="nav-link active" href="#regressionAlgorithm" data-toggle="tab">回归算法</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#clusteringAlgorithm" data-toggle="tab">聚类算法</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#regressionAlgorithm" data-toggle="tab">回归算法</a>
+                <a class="nav-link" href="#sortingAlgorithm" data-toggle="tab">分类算法</a>
             </li>
         </ul>
         <div class="tab-content" id="data_tab_content">
-            <div class="tab-pane fade show active" id="sortingAlgorithm" role="tabpanel"
-                 aria-labelledby="sortingAlgorithm_tab">
-                <form method="post">{% csrf_token %}
-                    <h4 class="text-center"><b>支持向量计算法</b></h4>
-
-                    <div class="row ">
-                        <div class="formControls col-sm-offset-2 col-sm-2"></div>
-                        <div class="formControls  col-sm-2" style="padding-left: 15px">
-                            <button type="submit" class="btn btn-success "
-                                    style="height: 45px;text-align: center;padding-top: 10px">
-                                提交 >
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="tab-pane fade" id="clusteringAlgorithm" role="tabpanel"
-                 aria-labelledby="clusteringAlgorithm_tab">
-                <form method="post">{% csrf_token %}
-                    <h4 class="text-center"><b>DBSCAN聚类</b></h4>
-
-                    <div class="row ">
-                        <div class="formControls col-sm-offset-2 col-sm-2"></div>
-                        <div class="formControls  col-sm-2" style="padding-left: 15px">
-                            <button type="submit" class="btn btn-success "
-                                    style="height: 45px;text-align: center;padding-top: 10px">
-                                提交 >
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="tab-pane fade" id="regressionAlgorithm" role="tabpanel"
+            <div class="tab-pane fade show active" id="regressionAlgorithm" role="tabpanel"
                  aria-labelledby="regressionAlgorithm_tab">
                 <form method="post">{% csrf_token %}
-                    <h4 class="text-center"><b>普通最小二乘法</b></h4>
                     <div class="row">
-                        <label for="machine_learning_algorithm" class="col-sm-2  control-label"
-                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">机器学习算法：</label>
-                        <div class="form-group col-sm-4" style="display: inline-block; height:35px; line-height: 35px">
-                            <input value="LinearRegression" type="radio" class="form-check form-check-inline" checked
-                                   id="machine_learning_algorithm" name="machine_learning_algorithm">
-                            <label class="form-check-label" for="machine_learning_algorithm">普通最小二乘法</label>
+                        <label class="col-sm-2  control-label"
+                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">回归算法：</label>
+                        <select class="form-control col-sm-4 a" name="machine_learning_algorithm">
+                            <option selected>=请选择=</option>
+                            <option value="Ridge">Ridge算法</option>
+                            <option value="Lasso">Lasso算法</option>
+                            <option value="SVR">SVR算法</option>
+                        </select>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <label class="col-sm-2"
+                               style="text-align: right; display: inline-block; height:35px; line-height: 35px"><b>通用参数：</b></label>
+                    </div>
+                    <div class="row">
+                        <label for="preprocessing" class="col-sm-2  control-label"
+                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">preprocessing：</label>
+                        <div class="form-group col-sm-4">
+                            <div class="form-check form-check-inline" id="preprocessing"
+                                 style="display: inline-block; height:35px; line-height: 35px">
+                                <input class="form-check-input " type="radio" name="preprocessing" id="preprocessing"
+                                       value=" MinMaxScaler" checked>最小最大值标准化
+                                <input class="form-check-input" type="radio" name="preprocessing" id="preprocessing"
+                                       value="scale">零均值
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="train_test_split" class="col-sm-2  control-label"
+                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">train_test_split：</label>
+                        <div class="form-group col-sm-4">
+                            <input value="0.2" type="text" class="form-control" id="train_test_split"
+                                   name="train_test_split" placeholder="填小数">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <label class="col-sm-2"
+                               style="text-align: right; display: inline-block; height:35px; line-height: 35px"><b>特有参数：</b></label>
+                    </div>
+                    <div id="parameters1">
 
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="fit_intercept" class="col-sm-2  control-label"
-                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">fit_intercept：</label>
-                        <div class="form-group col-sm-4">
-                            <div class="form-check form-check-inline" id="fit_intercept"
-                                 style="display: inline-block; height:35px; line-height: 35px">
-                                <input class="form-check-input " type="radio" name="fit_intercept" id="fit_intercept"
-                                       value="True">True
-                                <input class="form-check-input" type="radio" name="fit_intercept" id="fit_intercept"
-                                       value="False">False
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="normalize" class="col-sm-2  control-label"
-                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">normalize：</label>
-                        <div class="form-group col-sm-4">
-                            <div class="form-check form-check-inline" id="fit_intercept"
-                                 style="display: inline-block; height:35px; line-height: 35px">
-                                <input class="form-check-input " type="radio" name="normalize" id="normalize"
-                                       value="True">True
-                                <input class="form-check-input" type="radio" name="normalize" id="normalize"
-                                       value="False">False
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="copy_X" class="col-sm-2  control-label"
-                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">copy_X：</label>
-                        <div class="form-group col-sm-4">
-                            <div class="form-check form-check-inline" id="copy_X"
-                                 style="display: inline-block; height:35px; line-height: 35px">
-                                <input class="form-check-input " type="radio" name="copy_X"
-                                       id="copy_X" value="True">True
-                                <input class="form-check-input" type="radio" name="copy_X" id="copy_X"
-                                       value="False">False
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="n_jobs" class="col-sm-2  control-label"
-                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">n_jobs：</label>
-                        <div class="form-group col-sm-4">
-                            <input value="1" type="text" class="form-control" id="n_jobs"
-                                   name="n_jobs">
-                        </div>
                     </div>
 
+                    <hr>
+                    <script>
+                        let parameters = $('#parameters1');
+                        $(function () {
+                            $('select.a').change(function () {
+                                seva = $('select.a option:selected').val();
+                                if (seva === 'Ridge') {
+                                    parameters.html(
+                                        '<div class="row">' +
+                                        '    <label for="alpha" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">alpha：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="1.0" type="text" class="form-control" id="alpha" name="alpha"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="fit_intercept" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">fit_intercept：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="fit_intercept"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="fit_intercept"' +
+                                        '                   id="fit_intercept" value="True" checked>True' +
+                                        '            <input class="form-check-input" type="radio" name="fit_intercept" id="fit_intercept"' +
+                                        '                   value="False">False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="normalize" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">normalize：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="normalize"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="normalize" id="normalize"' +
+                                        '                   value="True">True' +
+                                        '            <input class="form-check-input" type="radio" name="normalize" id="normalize"' +
+                                        '                   value="False" checked>False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="copy_X" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">copy_X：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="copy_X"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="copy_X"' +
+                                        '                   id="copy_X" value="True" checked>True' +
+                                        '            <input class="form-check-input" type="radio" name="copy_X" id="copy_X"' +
+                                        '                   value="False">False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="max_iter" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">max_iter：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="1000" type="text" class="form-control" id="max_iter" name="max_iter"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="tol" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">tol：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="0.001" type="text" class="form-control" id="tol" name="tol"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>'
+                                    )
+                                    ;
+                                } else if (seva === 'Lasso') {
+                                    parameters.html(
+                                        '<div class="row">' +
+                                        '    <label for="alpha" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">alpha：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="1.0" type="text" class="form-control" id="alpha" name="alpha"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="fit_intercept" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">fit_intercept：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="fit_intercept"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="fit_intercept"' +
+                                        '                   id="fit_intercept" value="True" checked>True' +
+                                        '            <input class="form-check-input" type="radio" name="fit_intercept" id="fit_intercept"' +
+                                        '                   value="False">False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="normalize" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">normalize：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="normalize"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="normalize" id="normalize"' +
+                                        '                   value="True">True' +
+                                        '            <input class="form-check-input" type="radio" name="normalize" id="normalize"' +
+                                        '                   value="False" checked>False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '     <label for="precompute" class="col-sm-2  control-label"' +
+                                        '            style="text-align: right; display: inline-block; height:35px; line-height: 35px">precompute：</label>' +
+                                        '     <div class="form-group col-sm-4">' +
+                                        '         <div class="form-check form-check-inline" id="precompute"' +
+                                        '              style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '             <input class="form-check-input " type="radio" name="precompute" id="precompute"' +
+                                        '                    value="True">True' +
+                                        '             <input class="form-check-input" type="radio" name="precompute" id="precompute"' +
+                                        '                    value="False" checked>False' +
+                                        '         </div>' +
+                                        '     </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="copy_X" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">copy_X：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="copy_X"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="copy_X"' +
+                                        '                   id="copy_X" value="True" checked>True' +
+                                        '            <input class="form-check-input" type="radio" name="copy_X" id="copy_X"' +
+                                        '                   value="False">False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="max_iter" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">max_iter：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="1000" type="text" class="form-control" id="max_iter" name="max_iter"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="tol" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">tol：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="0.0001" type="text" class="form-control" id="tol" name="tol"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="warm_start" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">warm_start：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="precompute"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="warm_start" id="warm_start"' +
+                                        '                   value="True">True' +
+                                        '            <input class="form-check-input" type="radio" name="warm_start" id="warm_start"' +
+                                        '                   value="False" checked>False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="positive" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">positive：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '         <div class="form-check form-check-inline" id="positive"' +
+                                        '              style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '             <input class="form-check-input " type="radio" name="positive" id="positive"' +
+                                        '                    value="True">True' +
+                                        '             <input class="form-check-input" type="radio" name="positive" id="positive"' +
+                                        '                    value="False" checked>False' +
+                                        '         </div>' +
+                                        '    </div>' +
+                                        '</div>'
+                                    )
+                                    ;
+                                } else if (seva === 'SVR') {
+                                    parameters.html(
+                                        '<div class="row">' +
+                                        '   <label for="kernel" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">kernel：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="kernel"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="kernel"' +
+                                        '                   id="kernel" value="linear">linear' +
+                                        '            <input class="form-check-input" type="radio" name="kernel" id="kernel"' +
+                                        '                   value="poly">poly' +
+                                        '            <input class="form-check-input" type="radio" name="kernel" id="kernel"' +
+                                        '                   value="rbf" checked>rbf' +
+                                        '            <input class="form-check-input" type="radio" name="kernel" id="kernel"' +
+                                        '                   value="sigmoid">sigmoid' +
+                                        '            <input class="form-check-input" type="radio" name="kernel" id="kernel"' +
+                                        '                   value="precomputed">precomputed' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="degree" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">degree：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="3" type="text" class="form-control" id="degree" name="degree"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="gamma" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">gamma：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="gamma"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="gamma"' +
+                                        '                   id="gamma" value="scale" checked>scale' +
+                                        '            <input class="form-check-input" type="radio" name="gamma" id="gamma"' +
+                                        '                   value="auto">auto' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="coef0" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">coef0：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="0.0" type="text" class="form-control" id="coef0" name="coef0"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="tol" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">tol：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="0.001" type="text" class="form-control" id="tol" name="tol"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="C" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">C：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="1.0" type="text" class="form-control" id="C" name="C"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="epsilon" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">epsilon：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="0.1" type="text" class="form-control" id="epsilon" name="epsilon"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="shrinking" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">shrinking：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="shrinking"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="shrinking"' +
+                                        '                   id="shrinking" value="True" checked>True' +
+                                        '            <input class="form-check-input" type="radio" name="shrinking" id="shrinking"' +
+                                        '                   value="False">False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="cache_size" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">cache_size：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="200" type="text" class="form-control" id="cache_size" name="cache_size"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="verbose" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">verbose：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="verbose"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="verbose"' +
+                                        '                   id="verbose" value="True">True' +
+                                        '            <input class="form-check-input" type="radio" name="verbose" id="verbose"' +
+                                        '                   value="False" checked>False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="max_iter" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">max_iter：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="-1" type="text" class="form-control" id="max_iter" name="max_iter"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>'
+                                    );
+                                } else {
+                                    parameters.html('');
+                                }
+                            })
+                        })
+
+                    </script>
                     <div class="row ">
-                        <div class="formControls col-sm-offset-2 col-sm-2"></div>
+                        <div class="formControls  col-sm-2" style="padding-left: 15px">
+                            <button type="button" class="btn btn-success "
+                                    onclick='window.location.href="{% url 'qualitycontrol' dataname %}"'
+                                    style="height: 45px;text-align: center;padding-top: 10px">
+                                < 返回
+                            </button>
+                        </div>
+
                         <div class="formControls  col-sm-2" style="padding-left: 15px">
                             <button type="submit" class="btn btn-success "
                                     style="height: 45px;text-align: center;padding-top: 10px">
@@ -178,14 +439,430 @@
                     </div>
                 </form>
             </div>
+
+
+            <div class="tab-pane fade" id="sortingAlgorithm" role="tabpanel"
+                 aria-labelledby="sortingAlgorithm_tab">
+                <form method="post">{% csrf_token %}
+                    <div class="row">
+                        <label class="col-sm-2  control-label"
+                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">分类算法：</label>
+                        <select class="form-control col-sm-4 b" name="machine_learning_algorithm">
+                            <option selected>=请选择=</option>
+                            <option value="LogisticRegression">LogisticRegression算法</option>
+                            <option value="SVC">SVC算法</option>
+                            <option value="KNeighborsClassifier">KNeighborsClassifier算法</option>
+                        </select>
+                    </div>
+
+                    <hr>
+                    <div class="row">
+                        <label class="col-sm-2"
+                               style="text-align: right; display: inline-block; height:35px; line-height: 35px"><b>通用参数：</b></label>
+                    </div>
+                    <div class="row">
+                        <label for="preprocessing" class="col-sm-2  control-label"
+                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">preprocessing：</label>
+                        <div class="form-group col-sm-4">
+                            <div class="form-check form-check-inline" id="preprocessing"
+                                 style="display: inline-block; height:35px; line-height: 35px">
+                                <input class="form-check-input " type="radio" name="preprocessing" id="preprocessing"
+                                       value=" MinMaxScaler" checked>最小最大值标准化
+                                <input class="form-check-input" type="radio" name="preprocessing" id="preprocessing"
+                                       value="scale">零均值
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="train_test_split" class="col-sm-2  control-label"
+                               style="text-align: right; display: inline-block; height:35px; line-height: 35px">train_test_split：</label>
+                        <div class="form-group col-sm-4">
+                            <input value="0.2" type="text" class="form-control" id="train_test_split"
+                                   name="train_test_split" placeholder="填小数">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <label class="col-sm-2"
+                               style="text-align: right; display: inline-block; height:35px; line-height: 35px"><b>特有参数：</b></label>
+                    </div>
+                    <div id="parameters2">
+
+                    </div>
+
+                    <hr>
+                    <script>
+                        let parameterss = $('#parameters2');
+                        $(function () {
+                            $('select.b').change(function () {
+                                seval = $('select.b option:selected').val();
+                                console.log(seval);
+                                if (seval === 'LogisticRegression') {
+                                    parameterss.html(
+                                        '<div class="row">' +
+                                        '    <label for="penalty" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">penalty：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="penalty"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="penalty"' +
+                                        '                   id="penalty" value="l1">L1' +
+                                        '            <input class="form-check-input" type="radio" name="penalty" id="penalty"' +
+                                        '                   value="l2" checked>L2' +
+                                        '            <input class="form-check-input" type="radio" name="penalty" id="penalty"' +
+                                        '                   value="elasticnet">elasticnet' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="dual" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">dual：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="dual"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="dual"' +
+                                        '                   id="dual" value="True">True' +
+                                        '            <input class="form-check-input" type="radio" name="dual" id="dual"' +
+                                        '                   value="False" checked>False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="tol" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">tol：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="0.0001" type="text" class="form-control" id="tol" name="tol"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="C" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">C：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="1.0" type="text" class="form-control" id="C" name="C"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="fit_intercept" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">fit_intercept：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="fit_intercept"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="fit_intercept"' +
+                                        '                   id="fit_intercept" value="True" checked>True' +
+                                        '            <input class="form-check-input" type="radio" name="fit_intercept" id="fit_intercept"' +
+                                        '                   value="False">False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="intercept_scaling" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">intercept_scaling：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="1" type="text" class="form-control" id="intercept_scaling"' +
+                                        '               name="intercept_scaling"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="solver" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">solver：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="solver"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="solver" id="solver"' +
+                                        '                   value="newton-cg">newton-cg' +
+                                        '            <input class="form-check-input" type="radio" name="solver" id="solver"' +
+                                        '                   value="lbfgs" checked>lbfgs' +
+                                        '            <input class="form-check-input" type="radio" name="solver" id="solver"' +
+                                        '                   value="liblinear">liblinear' +
+                                        '            <input class="form-check-input" type="radio" name="solver" id="solver"' +
+                                        '                   value="sag">sag' +
+                                        '            <input class="form-check-input" type="radio" name="solver" id="solver"' +
+                                        '                   value="saga">saga' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="max_iter" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">max_iter：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="1000" type="text" class="form-control" id="max_iter" name="max_iter"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="multi_class" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">multi_class：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="multi_class"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="multi_class" id="multi_class"' +
+                                        '                   value="auto" checked>auto' +
+                                        '            <input class="form-check-input" type="radio" name="multi_class" id="multi_class"' +
+                                        '                   value="ovr">ovr' +
+                                        '            <input class="form-check-input" type="radio" name="multi_class" id="multi_class"' +
+                                        '                   value="multinomial">multinomial' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="verbose" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">verbose：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="0" type="text" class="form-control" id="verbose" name="verbose"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="warm_start" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">warm_start：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="precompute"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="warm_start" id="warm_start"' +
+                                        '                   value="True">True' +
+                                        '            <input class="form-check-input" type="radio" name="warm_start" id="warm_start"' +
+                                        '                   value="False" checked>False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>'
+                                    );
+                                } else if (seval === 'SVC') {
+                                    parameterss.html(
+                                        '<div class="row">' +
+                                        '    <label for="C" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">C：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="1.0" type="text" class="form-control" id="C" name="C"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '   <label for="kernel" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">kernel：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="kernel"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="kernel"' +
+                                        '                   id="kernel" value="linear">linear' +
+                                        '            <input class="form-check-input" type="radio" name="kernel" id="kernel"' +
+                                        '                   value="poly">poly' +
+                                        '            <input class="form-check-input" type="radio" name="kernel" id="kernel"' +
+                                        '                   value="rbf" checked>rbf' +
+                                        '            <input class="form-check-input" type="radio" name="kernel" id="kernel"' +
+                                        '                   value="sigmoid">sigmoid' +
+                                        '            <input class="form-check-input" type="radio" name="kernel" id="kernel"' +
+                                        '                   value="precomputed">precomputed' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="degree" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">degree：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="3" type="text" class="form-control" id="degree" name="degree"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="gamma" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">gamma：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="gamma"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="gamma"' +
+                                        '                   id="gamma" value="scale" checked>scale' +
+                                        '            <input class="form-check-input" type="radio" name="gamma" id="gamma"' +
+                                        '                   value="auto">auto' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '   <label for="coef0" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">coef0：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="0.0" type="text" class="form-control" id="coef0" name="coef0"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="shrinking" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">shrinking：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="shrinking"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="shrinking"' +
+                                        '                   id="shrinking" value="True" checked>True' +
+                                        '            <input class="form-check-input" type="radio" name="shrinking" id="shrinking"' +
+                                        '                   value="False">False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="probability" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">probability：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="probability"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="probability"' +
+                                        '                   id="probability" value="True">True' +
+                                        '            <input class="form-check-input" type="radio" name="probability" id="probability"' +
+                                        '                   value="False" checked>False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="tol" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">tol：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="0.001" type="text" class="form-control" id="tol" name="tol"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="cache_size" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">cache_size：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="200" type="text" class="form-control" id="cache_size" name="cache_size"' +
+                                        '               placeholder="填float型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="verbose" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">verbose：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="verbose"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="verbose"' +
+                                        '                   id="verbose" value="True">True' +
+                                        '            <input class="form-check-input" type="radio" name="verbose" id="verbose"' +
+                                        '                   value="False" checked>False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="max_iter" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">max_iter：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="-1" type="text" class="form-control" id="max_iter" name="max_iter"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="decision_function_shape" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">decision_function_shape：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="decision_function_shape"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="decision_function_shape"' +
+                                        '                   id="decision_function_shape" value="ovo">ovo' +
+                                        '            <input class="form-check-input" type="radio" name="decision_function_shape" id="decision_function_shape"' +
+                                        '                   value="ovr" checked>ovr' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="break_ties" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">break_ties：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="break_ties"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="break_ties"' +
+                                        '                   id="break_ties" value="True">True' +
+                                        '            <input class="form-check-input" type="radio" name="break_ties" id="break_ties"' +
+                                        '                   value="False" checked>False' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>'
+                                    )
+
+                                } else if (seval === 'KNeighborsClassifier') {
+                                    parameterss.html(
+                                        '<div class="row">' +
+                                        '    <label for="n_neighbors" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">n_neighbors：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="5" type="text" class="form-control" id="n_neighbors" name="n_neighbors"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="weights" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">weights：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="weights"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="weights"' +
+                                        '                   id="weights" value="uniform"  checked>uniform' +
+                                        '            <input class="form-check-input" type="radio" name="weights" id="weights"' +
+                                        '                   value="distance">distance' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '   <label for="algorithm" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">algorithm：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <div class="form-check form-check-inline" id="algorithm"' +
+                                        '             style="display: inline-block; height:35px; line-height: 35px">' +
+                                        '            <input class="form-check-input " type="radio" name="algorithm"' +
+                                        '                   id="algorithm" value="auto" checked>auto' +
+                                        '            <input class="form-check-input" type="radio" name="algorithm" id="algorithm"' +
+                                        '                   value="ball_tree">ball_tree' +
+                                        '            <input class="form-check-input" type="radio" name="algorithm" id="algorithm"' +
+                                        '                   value="kd_tree">kd_tree' +
+                                        '            <input class="form-check-input" type="radio" name="algorithm" id="algorithm"' +
+                                        '                   value="brute">brute' +
+                                        '        </div>' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="leaf_size" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">leaf_size：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="30" type="text" class="form-control" id="leaf_size" name="leaf_size"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>' +
+                                        '<div class="row">' +
+                                        '    <label for="p" class="col-sm-2  control-label"' +
+                                        '           style="text-align: right; display: inline-block; height:35px; line-height: 35px">p：</label>' +
+                                        '    <div class="form-group col-sm-4">' +
+                                        '        <input value="2" type="text" class="form-control" id="p" name="p"' +
+                                        '               placeholder="填int型数">' +
+                                        '    </div>' +
+                                        '</div>'
+                                    );
+                                } else {
+                                    parameterss.html('');
+                                }
+                            })
+                        })
+
+
+                    </script>
+                    <div class="row ">
+                        <div class="formControls  col-sm-2" style="padding-left: 15px">
+                            <button type="button" class="btn btn-success "
+                                    onclick='window.location.href="{% url 'qualitycontrol' dataname %}"'
+                                    style="height: 45px;text-align: center;padding-top: 10px">
+                                < 返回
+                            </button>
+                        </div>
+                        <div class="formControls  col-sm-2" style="padding-left: 15px">
+                            <button type="submit" class="btn btn-success "
+                                    style="height: 45px;text-align: center;padding-top: 10px">
+                                提交 >
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
         </div>
-        <div class="formControls  col-sm-2" style="padding-left: 15px">
-            <button type="button" class="btn btn-success "
-                    onclick='window.location.href="{% url 'qualitycontrol' dataname %}"'
-                    style="height: 45px;text-align: center;padding-top: 10px">
-                < 返回
-            </button>
-        </div>
+
     </div>
 
 {% endblock %}

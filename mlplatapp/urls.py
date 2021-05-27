@@ -22,7 +22,7 @@ urlpatterns = [
          name='quality_control_precision'),
     path('qualitycontrol/exploratory/<str:data_name>', views.quality_control_exploratory,
          name='quality_control_exploratory'),
-    path('qualitycontrol/exploratory/result/<str:data_name>', views.quality_control_ex_result,
+    path('qualitycontrol/exploratory/result/<str:data_name>/<str:method>', views.quality_control_ex_result,
          name='quality_control_ex_result'),
     path('domainknowledgeembedding/<str:data_name>', views.chooseDomainKnowledgeEmbeddingMethod,
          name='domainknowledgeembedding'),  # 选择领域知识嵌入方式

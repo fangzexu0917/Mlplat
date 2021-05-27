@@ -477,25 +477,159 @@ def quality_control_exploratory(request, data_name):
         data = models.ReadData(data_name, host=HOST, port=PORT, database=DATABASE)
         excelproc = utils.excelProcessor(data)
         machine_learning_algorithm = request.POST.get("machine_learning_algorithm")
-        print(machine_learning_algorithm)
-        fit_intercept = request.POST.get("fit_intercept")
-        print(fit_intercept)
-        normalize = request.POST.get("normalize")
-        print(normalize)
-        copy_X = request.POST.get("copy_X")
-        print(copy_X)
-        n_jobs = request.POST.get("n_jobs")
-        print(n_jobs)
-        mlal_list = []
-        for key, val in excelproc.get_machine_learning_algorithm(machine_learning_algorithm, fit_intercept, normalize,
-                                                                 copy_X, n_jobs).items():
-            mlal_list.append({key: val})
-        print(mlal_list)
-        mlal_name, res = models.SavaData('mlal_' + data_name, mlal_list, True, host=HOST, port=PORT, database=DATABASE)
-        return redirect(reverse('quality_control_ex_result', kwargs={
-            'data_name': data_name,
-
-        }))
+        preprocessing = request.POST.get("preprocessing").strip()
+        train_test_split = float(request.POST.get("train_test_split").strip())
+        if machine_learning_algorithm == 'Ridge':
+            tempInt = excelproc.dftarget.apply(float.is_integer).all()
+            if tempInt:
+                return render(request, 'quality_control_ex_result_error.html', {
+                    'dataname': data_name,
+                })
+            alpha = float(request.POST.get("alpha").strip())
+            fit_intercept = utils.str_to_bool(request.POST.get("fit_intercept").strip())
+            normalize = utils.str_to_bool(request.POST.get("normalize").strip())
+            copy_X = utils.str_to_bool(request.POST.get("copy_X").strip())
+            max_iter = int(request.POST.get("max_iter").strip())
+            tol = float(request.POST.get("tol").strip())
+            Ridge_list = []
+            for key, val in excelproc.get_Ridge(preprocessing, train_test_split, alpha, fit_intercept, normalize,
+                                                copy_X, max_iter, tol).items():
+                Ridge_list.append({key: val})
+            _, _ = models.SavaData('Ridge_' + data_name, Ridge_list, True, host=HOST, port=PORT, database=DATABASE)
+            return redirect(reverse('quality_control_ex_result', kwargs={
+                'data_name': data_name,
+                'method': machine_learning_algorithm,
+            }))
+        if machine_learning_algorithm == 'Lasso':
+            tempInt = excelproc.dftarget.apply(float.is_integer).all()
+            if tempInt:
+                return render(request, 'quality_control_ex_result_error.html', {
+                    'dataname': data_name,
+                })
+            alpha = float(request.POST.get("alpha").strip())
+            fit_intercept = utils.str_to_bool(request.POST.get("fit_intercept").strip())
+            normalize = utils.str_to_bool(request.POST.get("normalize").strip())
+            precompute = utils.str_to_bool(request.POST.get("precompute").strip())
+            copy_X = utils.str_to_bool(request.POST.get("copy_X").strip())
+            max_iter = int(request.POST.get("max_iter").strip())
+            tol = float(request.POST.get("tol").strip())
+            warm_start = utils.str_to_bool(request.POST.get("warm_start").strip())
+            positive = utils.str_to_bool(request.POST.get("positive").strip())
+            Lasso_list = []
+            for key, val in excelproc.get_Lasso(preprocessing, train_test_split, alpha, fit_intercept, normalize,
+                                                copy_X, precompute, max_iter, tol, warm_start, positive).items():
+                Lasso_list.append({key: val})
+            _, _ = models.SavaData('Lasso_' + data_name, Lasso_list, True, host=HOST, port=PORT, database=DATABASE)
+            return redirect(reverse('quality_control_ex_result', kwargs={
+                'data_name': data_name,
+                'method': machine_learning_algorithm,
+            }))
+        if machine_learning_algorithm == 'SVR':
+            tempInt = excelproc.dftarget.apply(float.is_integer).all()
+            if tempInt:
+                return render(request, 'quality_control_ex_result_error.html', {
+                    'dataname': data_name,
+                })
+            kernel = request.POST.get("kernel").strip()
+            degree = int(request.POST.get("degree").strip())
+            gamma = request.POST.get("gamma").strip()
+            coef0 = float(request.POST.get("coef0").strip())
+            tol = float(request.POST.get("tol").strip())
+            C = float(request.POST.get("C").strip())
+            epsilon = float(request.POST.get("epsilon").strip())
+            shrinking = utils.str_to_bool(request.POST.get("shrinking").strip())
+            cache_size = float(request.POST.get("cache_size").strip())
+            verbose = utils.str_to_bool(request.POST.get("verbose").strip())
+            max_iter = int(request.POST.get("max_iter").strip())
+            SVR_list = []
+            for key, val in excelproc.get_SVR(preprocessing, train_test_split, kernel, degree, gamma, coef0, tol,
+                                              C, epsilon, shrinking, cache_size, verbose, max_iter).items():
+                SVR_list.append({key: val})
+            _, _ = models.SavaData('SVR_' + data_name, SVR_list, True, host=HOST, port=PORT, database=DATABASE)
+            return redirect(reverse('quality_control_ex_result', kwargs={
+                'data_name': data_name,
+                'method': machine_learning_algorithm,
+            }))
+        if machine_learning_algorithm == 'LogisticRegression':
+            tempInt = excelproc.dftarget.apply(float.is_integer).all()
+            if bool(1 - tempInt):
+                return render(request, 'quality_control_ex_result_error.html', {
+                    'dataname': data_name,
+                })
+            penalty = request.POST.get("penalty").strip()
+            dual = utils.str_to_bool(request.POST.get("dual"))
+            tol = float(request.POST.get("tol").strip())
+            C = float(request.POST.get("C").strip())
+            fit_intercept = utils.str_to_bool(request.POST.get("fit_intercept").strip())
+            intercept_scaling = float(request.POST.get("intercept_scaling").strip())
+            solver = request.POST.get("solver").strip()
+            max_iter = int(request.POST.get("max_iter").strip())
+            multi_class = request.POST.get("multi_class").strip()
+            verbose = int(request.POST.get("verbose").strip())
+            warm_start = utils.str_to_bool(request.POST.get("warm_start").strip())
+            LR_list = []
+            for key, val in excelproc.get_LogisticRegression(preprocessing, train_test_split, penalty, dual, tol, C,
+                                                             fit_intercept, intercept_scaling, solver, max_iter,
+                                                             multi_class, verbose, warm_start).items():
+                LR_list.append({key: val})
+            _, _ = models.SavaData('LogisticRegression_' + data_name, LR_list, True, host=HOST, port=PORT,
+                                   database=DATABASE)
+            return redirect(reverse('quality_control_ex_result', kwargs={
+                'data_name': data_name,
+                'method': machine_learning_algorithm,
+            }))
+        if machine_learning_algorithm == 'SVC':
+            tempInt = excelproc.dftarget.apply(float.is_integer).all()
+            if bool(1 - tempInt):
+                return render(request, 'quality_control_ex_result_error.html', {
+                    'dataname': data_name,
+                })
+            C = float(request.POST.get("C").strip())
+            kernel = request.POST.get("kernel").strip()
+            degree = int(request.POST.get("degree").strip())
+            gamma = request.POST.get("gamma").strip()
+            coef0 = float(request.POST.get("coef0").strip())
+            shrinking = utils.str_to_bool(request.POST.get("shrinking").strip())
+            probability = utils.str_to_bool(request.POST.get("probability").strip())
+            tol = float(request.POST.get("tol").strip())
+            cache_size = float(request.POST.get("cache_size").strip())
+            verbose = utils.str_to_bool(request.POST.get("verbose").strip())
+            max_iter = int(request.POST.get("max_iter").strip())
+            decision_function_shape = request.POST.get("decision_function_shape").strip()
+            break_ties = utils.str_to_bool(request.POST.get("break_ties").strip())
+            SVC_list = []
+            for key, val in excelproc.get_SVC(preprocessing, train_test_split, C, kernel, degree, gamma, coef0,
+                                              shrinking, probability, tol, cache_size, verbose, max_iter,
+                                              decision_function_shape, break_ties).items():
+                SVC_list.append({key: val})
+            _, _ = models.SavaData('SVC_' + data_name, SVC_list, True, host=HOST, port=PORT,
+                                   database=DATABASE)
+            return redirect(reverse('quality_control_ex_result', kwargs={
+                'data_name': data_name,
+                'method': machine_learning_algorithm,
+            }))
+        if machine_learning_algorithm == 'KNeighborsClassifier':
+            tempInt = excelproc.dftarget.apply(float.is_integer).all()
+            if bool(1 - tempInt):
+                return render(request, 'quality_control_ex_result_error.html', {
+                    'dataname': data_name,
+                })
+            n_neighbors = int(request.POST.get("n_neighbors").strip())
+            weights = request.POST.get("weights").strip()
+            algorithm = request.POST.get("algorithm").strip()
+            leaf_size = int(request.POST.get("leaf_size").strip())
+            p = int(request.POST.get("p").strip())
+            KNN_list = []
+            for key, val in excelproc.get_KNeighborsClassifier(preprocessing, train_test_split, n_neighbors, weights,
+                                                               algorithm,
+                                                               leaf_size, p).items():
+                KNN_list.append({key: val})
+            _, _ = models.SavaData('KNeighborsClassifier_' + data_name, KNN_list, True, host=HOST, port=PORT,
+                                   database=DATABASE)
+            return redirect(reverse('quality_control_ex_result', kwargs={
+                'data_name': data_name,
+                'method': machine_learning_algorithm,
+            }))
 
     if request.method == 'GET':
         return render(request, 'quality_control_exploratory.html', {
@@ -503,20 +637,26 @@ def quality_control_exploratory(request, data_name):
         })
 
 
-def quality_control_ex_result(request, data_name):
+def quality_control_ex_result(request, data_name, method):
     if request.method == 'POST':
         pass
     if request.method == 'GET':
         data = models.ReadData(data_name, host=HOST, port=PORT, database=DATABASE)
-        mlal_res = models.ReadData("mlal_" + data_name, host=HOST, port=PORT, database=DATABASE)
-        temp = []
-        temp.append(mlal_res[0]['coef'])
-        print(temp)
-        return render(request, 'quality_control_ex_result.html', {
-            'dataname': data_name,
-            'data': data,
-            'mlal_res': temp,
-        })
+        mlal_res = models.ReadData(method + "_" + data_name, host=HOST, port=PORT, database=DATABASE)
+        list1 = ['Ridge', 'Lasso', 'SVR']
+        list2 = ['LogisticRegression', 'SVC', 'KNeighborsClassifier']
+        if list1.count(method) > 0:
+            return render(request, 'quality_control_ex_result.html', {
+                'dataname': data_name,
+                'data': data,
+                'mlal_res': mlal_res,
+            })
+        elif list2.count(method) > 0:
+            return render(request, 'quality_control_ex_result_second.html', {
+                'dataname': data_name,
+                'data': data,
+                'mlal_res': mlal_res,
+            })
 
 
 def download(request, name):

@@ -1,61 +1,129 @@
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
-       aria-haspopup="true" aria-expanded="false">
-        <span id="buttonTextDc">局部异常因子检测</span>
-    </a>
-    <div class="dropdown-menu">
-        <a class="nav-link dropdown-item" id="ck_reliability_lof"
-           data-toggle="tab" onclick="selectShowDc($(this).text())"
-           role="tab" href="#dc_table_tab_lof"
-           aria-selected="true">局部异常因子检测</a>
-        <a class="nav-link dropdown-item" id="ck_reliability_if"
-           data-toggle="tab" onclick="selectShowDc($(this).text())"
-           role="tab" href="#dc_table_tab_if"
-           aria-selected="true">孤立森林检测</a>
-        <a class="nav-link dropdown-item" id="ck_reliability_dbs"
-           data-toggle="tab" onclick="selectShowDc($(this).text())"
-           role="tab" href="#dc_table_tab_dbs"
-           aria-selected="true">DBSCAN聚类检测</a>
-        <a class="nav-link dropdown-item" id="ck_reliability_reg"
-           data-toggle="tab" onclick="selectShowDc($(this).text())"
-           role="tab" href="#dc_table_tab_reg"
-           aria-selected="true">相似样本对比分析</a>
-        <script>
-            function selectShowDc(a) {
-                $('#buttonTextDc').text(a)
-            }
-        </script>
-    </div>
-</li>
-
-let mlal_list = [];
-        mlal_list.push({
-            title: $('<div/>').text('coef').html(),
-            field: 'coef',
-            visible: true,
-            align: "center",
-            halign: "left",
-            formatter: function (value) {
-                if (!isFloat(value)) {
-                    return value;  // if value is not float or integer, return value
-                }
-                if (isInteger(value)) {
-                    return value;  // if value is integer, return value
-                }
-                return value.toFixed(2);  // if value is float, return fixed float
-            }
-        })
-        console.log({{ mlal_res }})
-        $('#mlal_table').bootstrapTable({
-            data: {{ mlal_res}},
-            theadClasses: "thead-light",
-            pagination: true,
-            pageSize: '15',
-            columns: mlal_list,
-            showColumns: true,
-            showToggle: true,
-            search: true,
-            showExport: true,
-            exportDataType: "all",
-            exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
-        });
+'<div class="row">'+
+'    <label for="penalty" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">penalty：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <div class="form-check form-check-inline" id="penalty"'+
+'             style="display: inline-block; height:35px; line-height: 35px">'+
+'            <input class="form-check-input " type="radio" name="penalty"'+
+'                   id="penalty" value="l1">L1'+
+'            <input class="form-check-input" type="radio" name="penalty" id="penalty"'+
+'                   value="l2" checked>L2'+
+'            <input class="form-check-input" type="radio" name="penalty" id="penalty"'+
+'                   value="elasticnet">elasticnet'+
+'        </div>'+
+'    </div>'+
+'</div>'+
+'<div class="row">'+
+'    <label for="dual" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">dual：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <div class="form-check form-check-inline" id="dual"'+
+'             style="display: inline-block; height:35px; line-height: 35px">'+
+'            <input class="form-check-input " type="radio" name="dual"'+
+'                   id="dual" value="True">True'+
+'            <input class="form-check-input" type="radio" name="dual" id="dual"'+
+'                   value="False" checked>False'+
+'        </div>'+
+'    </div>'+
+'</div>'+
+'<div class="row">'+
+'    <label for="tol" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">tol：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <input value="0.0001" type="text" class="form-control" id="tol" name="tol"'+
+'               placeholder="填float型数">'+
+'    </div>'+
+'</div>'+
+'<div class="row">'+
+'    <label for="C" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">C：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <input value="1.0" type="text" class="form-control" id="C" name="C"'+
+'               placeholder="填float型数">'+
+'    </div>'+
+'</div>'+
+'<div class="row">'+
+'    <label for="fit_intercept" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">fit_intercept：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <div class="form-check form-check-inline" id="fit_intercept"'+
+'             style="display: inline-block; height:35px; line-height: 35px">'+
+'            <input class="form-check-input " type="radio" name="fit_intercept"'+
+'                   id="fit_intercept" value="True" checked>True'+
+'            <input class="form-check-input" type="radio" name="fit_intercept" id="fit_intercept"'+
+'                   value="False">False'+
+'        </div>'+
+'    </div>'+
+'</div>'+
+'<div class="row">'+
+'    <label for="intercept_scaling" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">intercept_scaling：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <input value="1" type="text" class="form-control" id="intercept_scaling"'+
+'               name="intercept_scaling"'+
+'               placeholder="填float型数">'+
+'    </div>'+
+'</div>'+
+'<div class="row">'+
+'    <label for="solver" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">solver：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <div class="form-check form-check-inline" id="solver"'+
+'             style="display: inline-block; height:35px; line-height: 35px">'+
+'            <input class="form-check-input " type="radio" name="solver" id="solver"'+
+'                   value="newton-cg">newton-cg'+
+'            <input class="form-check-input" type="radio" name="solver" id="solver"'+
+'                   value="lbfgs" checked>lbfgs'+
+'            <input class="form-check-input" type="radio" name="solver" id="solver"'+
+'                   value="liblinear">liblinear'+
+'            <input class="form-check-input" type="radio" name="solver" id="solver"'+
+'                   value="sag">sag'+
+'            <input class="form-check-input" type="radio" name="solver" id="solver"'+
+'                   value="saga">saga'+
+'        </div>'+
+'    </div>'+
+'</div>'+
+'<div class="row">'+
+'    <label for="max_iter" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">max_iter：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <input value="1000" type="text" class="form-control" id="max_iter" name="max_iter"'+
+'               placeholder="填int型数">'+
+'    </div>'+
+'</div>'+
+'<div class="row">'+
+'    <label for="multi_class" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">multi_class：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <div class="form-check form-check-inline" id="multi_class"'+
+'             style="display: inline-block; height:35px; line-height: 35px">'+
+'            <input class="form-check-input " type="radio" name="multi_class" id="multi_class"'+
+'                   value="auto" checked>auto'+
+'            <input class="form-check-input" type="radio" name="multi_class" id="multi_class"'+
+'                   value="ovr">ovr'+
+'            <input class="form-check-input" type="radio" name="multi_class" id="multi_class"'+
+'                   value="multinomial">multinomial'+
+'        </div>'+
+'    </div>'+
+'</div>'+
+'<div class="row">'+
+'    <label for="verbose" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">verbose：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <input value="0" type="text" class="form-control" id="verbose" name="verbose"'+
+'               placeholder="填int型数">'+
+'    </div>'+
+'</div>'+
+'<div class="row">'+
+'    <label for="warm_start" class="col-sm-2  control-label"'+
+'           style="text-align: right; display: inline-block; height:35px; line-height: 35px">warm_start：</label>'+
+'    <div class="form-group col-sm-4">'+
+'        <div class="form-check form-check-inline" id="precompute"'+
+'             style="display: inline-block; height:35px; line-height: 35px">'+
+'            <input class="form-check-input " type="radio" name="warm_start" id="warm_start"'+
+'                   value="True">True'+
+'            <input class="form-check-input" type="radio" name="warm_start" id="warm_start"'+
+'                   value="False" checked>False'+
+'        </div>'+
+'    </div>'+
+'</div>'
