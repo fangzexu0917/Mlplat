@@ -177,13 +177,13 @@
                         <div class="tab-content" id="chart_type_content">
                             <div class="tab-pane fade show active" id="boxplot" role="tabpanel"
                                  aria-labelledby="boxplot_tab">
-                                <div id="bpallchart" style="width: 800px; height: 400px"></div>
+                                <div id="bpallchart" style="width: 800px; height: 500px;margin:auto"></div>
                                 <div class="row">
                                     <h6>注：&nbsp;&nbsp;&nbsp;&nbsp;上图中数据为最大最小归一化后的值，仅供参考</h6>
                                 </div>
                                 {% with data|first as dm %}
                                     {% for i in dm %}
-                                        <div style="display: inline-block">
+                                        <div style="display: inline-block;margin:auto">
                                             <div id="bpdata_chart{{ forloop.counter0 }}"
                                                  style="width: 400px; height: 400px"></div>
                                             <div class="row">
@@ -1135,6 +1135,7 @@
                     }]
                 });
                 let bpdata = echarts.dataTool.prepareBoxplotData([fielddata[i]]);
+                console.log(bpdata)
                 let bpdata_chart = echarts.init(document.getElementById('bpdata_chart' + i.toString()));
                 bpdata_chart.setOption({
                     title: [{text: fields[i], left: 'center'}, {
@@ -1645,58 +1646,6 @@
                 }
             }]
         })
-        let ppattr = [];
-        let ppattrcorr = [];
-        {% for i in pointbiserialr %}
-            if (!ppattr.includes('{{ i.0 }}')) {
-                ppattr.push('{{ i.0 }}')
-            }
-            if (!ppattr.includes('{{ i.1 }}')) {
-                ppattr.push('{{ i.1 }}')
-            }
-            ppattrcorr.push(['{{ i.0 }}', '{{ i.1 }}', {{ i.2 }}]);
-            ppattrcorr.push(['{{ i.1 }}', '{{ i.0 }}', {{ i.2 }}]);
-        {% endfor %}
-
-        let ppcorrchart = echarts.init(document.getElementById('pointbiserialrcorrchart'));
-        ppcorrchart.setOption({
-            tooltip: {
-                position: 'top'
-            },
-            animation: false,
-            xAxis: {
-                type: 'category',
-                data: ppattr,
-                splitArea: {
-                    show: true
-                }
-            },
-            yAxis: {
-                type: 'category',
-                data: ppattr,
-                splitArea: {
-                    show: true
-                }
-            },
-            visualMap: {
-                min: 0.8,
-                max: 1,
-                orient: 'horizontal',
-                left: 'center',
-                text: ['High', 'Low'],
-            },
-            series: [{
-                type: 'heatmap',
-                data: ppattrcorr,
-                label: {show: false},
-                emphasis: {
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                }
-            }]
-        })
         let cattr = [];
         let cattrcorr = [];
         {% for i in coef_determination %}
@@ -1749,5 +1698,58 @@
                 }
             }]
         })
+        let ppattr = [];
+        let ppattrcorr = [];
+        {% for i in pointbiserialr %}
+            if (!ppattr.includes('{{ i.0 }}')) {
+                ppattr.push('{{ i.0 }}')
+            }
+            if (!ppattr.includes('{{ i.1 }}')) {
+                ppattr.push('{{ i.1 }}')
+            }
+            ppattrcorr.push(['{{ i.0 }}', '{{ i.1 }}', {{ i.2 }}]);
+            ppattrcorr.push(['{{ i.1 }}', '{{ i.0 }}', {{ i.2 }}]);
+        {% endfor %}
+
+        let ppcorrchart = echarts.init(document.getElementById('pointbiserialrcorrchart'));
+        ppcorrchart.setOption({
+            tooltip: {
+                position: 'top'
+            },
+            animation: false,
+            xAxis: {
+                type: 'category',
+                data: ppattr,
+                splitArea: {
+                    show: true
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: ppattr,
+                splitArea: {
+                    show: true
+                }
+            },
+            visualMap: {
+                min: 0.8,
+                max: 1,
+                orient: 'horizontal',
+                left: 'center',
+                text: ['High', 'Low'],
+            },
+            series: [{
+                type: 'heatmap',
+                data: ppattrcorr,
+                label: {show: false},
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        })
+
     </script>
 {% endblock %}

@@ -217,7 +217,7 @@ class excelProcessor(object):
 
     def algorithm_data_check(self):
         """
-        局部异常因子检测、孤立森林检测离群点
+        局部异常因子检测、孤立森林检测离群点、DBSCAN
         :return:
         """
         lof = LocalOutlierFactor(n_neighbors=self.df_rows // 2, contamination=.1)
@@ -226,7 +226,8 @@ class excelProcessor(object):
         iif = IsolationForest(n_estimators=len(self.col_name) * 2, contamination=.1)
         lif = iif.fit_predict(self.valuearray)
         lif_idx = [i for i in range(len(lif)) if lif[i] == -1]
-        dbs = DBSCAN(eps=0.3, min_samples=5).fit_predict(self.valuearray[:, :2])
+        temp = preprocessing.scale(self.valuearray)
+        dbs = DBSCAN(eps=0.3, min_samples=5).fit_predict(temp)
         dbs_idx = [i for i in range(len(dbs)) if dbs[i] == -1]
         desc = {}
         desc['lof'] = llof_idx

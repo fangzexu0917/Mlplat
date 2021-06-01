@@ -60,10 +60,13 @@
                     onclick='window.location.href="{% url 'machinelearning' dataname 'qualitycontrol' %}"'>性能预测
             </button>
         </div>
+        <br>
         <div class="row">
-
-            <div id="fit_chart" style="width: 800px; height: 400px"></div>
+            <div style="margin: auto">
+                <div id="fit_chart" style="width: 800px; height: 400px"></div>
+            </div>
         </div>
+        <br>
 
 
         <div class="formControls  col-sm-2" style="padding-left: 15px">
@@ -96,8 +99,8 @@
         let fit_chart = echarts.init(document.getElementById('fit_chart'));
         fit_chart.setOption({
             title: [{text: '拟合图', left: 'center'}, {
-                text: "RMSE:" + mlal_res[2]['RMSE'].toFixed(2) + "   MAPE:" + mlal_res[3]['MAPE'].toFixed(2) + "   R2:" + mlal_res[4]['R2'].toFixed(2),
-                textStyle: {fontSize: 14}, left: 'center', top: '6%'
+                text: "RMSE:" + mlal_res[2]['RMSE'].toFixed(3) + "   MAPE:" + mlal_res[3]['MAPE'].toFixed(3) + "   R2:" + mlal_res[4]['R2'].toFixed(3),
+                textStyle: {fontSize: 14}, left: 'center', top: '10%'
             }],
             xAxis: {name: 'y_test'},
             yAxis: {name: 'y_predict'},

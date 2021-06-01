@@ -66,21 +66,14 @@
                 <table id="LR_table" class="table table-hover table-responsive"></table>
             </div>
         </div>
+        <br>
         <div class="row">
-            <div class="col-sm-5"></div>
-            <div class>注：行为实际分类，列为预测分类</div>
+            <div class="text-center" style="margin: auto">
+                <p>注：行为实际分类，列为预测分类</p>
+            </div>
         </div>
-        <div class="row">
-            <div class="col-sm-5"></div>
-            <div><b>准确率:</b>{{ mlal_res.1.A_score }}</div>
-        </div>
-        <div class="row">
-            <div class="col-sm-5"></div>
-            <div><b>召回率:</b>{{ mlal_res.2.R_score }}</div>
-        </div>
-        <div class="row">
-            <div class="col-sm-5"></div>
-            <div><b>F1值:</b>{{ mlal_res.3.F1_score }}</div>
+        <div id="rate">
+
         </div>
 
 
@@ -103,7 +96,6 @@
         }
 
         let mlal_res ={{ mlal_res|safe }};
-        console.log(mlal_res);
         let mlal_list = [];
         let LRColumns = [];
         LRColumns.push({
@@ -123,7 +115,6 @@
             }
             mlal_list.push(temp);
         }
-        console.log(mlal_list);
         for (let key in mlal_list[0]) {
             if (mlal_list[0].hasOwnProperty(key)) {
                 LRColumns.push({
@@ -158,5 +149,24 @@
             exportDataType: "all",
             exportTypes: ['excel', 'xlsx', 'csv', 'json', 'txt', 'xml'],
         });
+
+        let a ={{ mlal_res.1.A_score }};
+        let b ={{ mlal_res.2.R_score }};
+        let f ={{ mlal_res.3.F1_score }};
+        $('#rate').html(
+            '<div class="row">' +
+            '    <div class="col-sm-5"></div>' +
+            '    <div><b>准确率:</b>' + a.toFixed(3) + '</div>' +
+            '</div>' +
+            '<div class="row">' +
+            '    <div class="col-sm-5"></div>' +
+            '    <div><b>召回率:</b>' + b.toFixed(3) + '</div>' +
+            '</div>' +
+            '<div class="row">' +
+            '    <div class="col-sm-5"></div>' +
+            '    <div><b>F1值:</b>' + f.toFixed(3) + '</div>' +
+            '</div>'
+        );
+
     </script>
 {% endblock %}
